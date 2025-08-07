@@ -92,7 +92,7 @@ function App() {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-800"><i>ROOM RECORDS</i></h1>
-                <p>by:-SIDDHATH PATEL</p>
+                <p>by:-SIDDHARTH PATEL</p>
               </div>
             </div>
             
