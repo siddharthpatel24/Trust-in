@@ -91,8 +91,8 @@ function App() {
                 <Home className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-800">Room Expense Tracker</h1>
-                <p className="text-sm text-gray-600">Manage your shared expenses</p>
+                <h1 className="text-xl font-bold text-gray-800"><i>ROOM RECORDS</i></h1>
+                
               </div>
             </div>
             
@@ -132,7 +132,7 @@ function App() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white/50 backdrop-blur-md border-t border-white/20 mt-16">
+      {/* <footer className="bg-white/50 backdrop-blur-md border-t border-white/20 mt-16">
         <div className="max-w-4xl mx-auto px-4 py-6 text-center">
           <p className="text-gray-600">
             Built for B.Tech students • Share with your roommates • Real-time sync
@@ -141,7 +141,7 @@ function App() {
             💡 Tip: Bookmark this page for quick access
           </p>
         </div>
-      </footer>
+      </footer> */}
     </div>
   );
 }
