@@ -17,7 +17,9 @@ import { db } from './config';
 // Collection names
 const COLLECTIONS = {
   BUDGET: 'budget',
-  EXPENSES: 'expenses'
+  EXPENSES: 'expenses',
+  ROOMMATES: 'roommates',
+  CLEANING_TASKS: 'cleaningTasks'
 };
 
 // Budget operations
@@ -98,5 +100,123 @@ export const expenseService = {
       }));
       callback(expenses);
     });
+  }
+};
+
+// Roommate operations
+export const roommateService = {
+  // Add new roommate
+  async addRoommate(name: string) {
+    await addDoc(collection(db, COLLECTIONS.ROOMMATES), {
+      name,
+      totalOwed: 0,
+      createdAt: new Date().toISOString()
+    });
+  },
+
+  // Get all roommates
+  async getRoommates() {
+    const snapshot = await getDocs(collection(db, COLLECTIONS.ROOMMATES));
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  },
+
+  // Update roommate balance
+  async updateRoommateBalance(id: string, totalOwed: number) {
+    await updateDoc(doc(db, COLLECTIONS.ROOMMATES, id), {
+      totalOwed,
+      updatedAt: new Date().toISOString()
+    });
+  },
+
+  // Delete roommate
+  async deleteRoommate(id: string) {
+    await deleteDoc(doc(db, COLLECTIONS.ROOMMATES, id));
+  },
+
+  // Listen to roommates changes in real-time
+  onRoommatesChange(callback: (roommates: any[]) => void) {
+    return onSnapshot(collection(db, COLLECTIONS.ROOMMATES), (snapshot) => {
+      const roommates = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      callback(roommates);
+    });
+  }
+};
+
+// Cleaning tasks operations
+export const cleaningService = {
+  // Add new cleaning task
+  async addCleaningTask(title: string, assignedTo: string, frequency: 'daily' | 'weekly', dueDate: string) {
+    await addDoc(collection(db, COLLECTIONS.CLEANING_TASKS), {
+      title,
+      assignedTo,
+      frequency,
+      dueDate,
+      completed: false,
+      createdAt: new Date().toISOString()
+    });
+  },
+
+  // Get all cleaning tasks
+  async getCleaningTasks() {
+    const q = query(collection(db, COLLECTIONS.CLEANING_TASKS), orderBy('dueDate', 'asc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  },
+
+  // Update task completion status
+  async updateTaskStatus(id: string, completed: boolean) {
+    await updateDoc(doc(db, COLLECTIONS.CLEANING_TASKS, id), {
+      completed,
+      completedAt: completed ? new Date().toISOString() : null,
+      updatedAt: new Date().toISOString()
+    });
+  },
+
+  // Delete cleaning task
+  async deleteCleaningTask(id: string) {
+    await deleteDoc(doc(db, COLLECTIONS.CLEANING_TASKS, id));
+  },
+
+  // Listen to cleaning tasks changes in real-time
+  onCleaningTasksChange(callback: (tasks: any[]) => void) {
+    const q = query(collection(db, COLLECTIONS.CLEANING_TASKS), orderBy('dueDate', 'asc'));
+    return onSnapshot(q, (snapshot) => {
+      const tasks = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      callback(tasks);
+    });
+  }
+};
+
+// Monthly reset operations
+export const monthlyResetService = {
+  // Clear all expenses for new month
+  async clearAllExpenses() {
+    const snapshot = await getDocs(collection(db, COLLECTIONS.EXPENSES));
+    const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+    await Promise.all(deletePromises);
+  },
+
+  // Reset all roommate balances
+  async resetRoommateBalances() {
+    const snapshot = await getDocs(collection(db, COLLECTIONS.ROOMMATES));
+    const updatePromises = snapshot.docs.map(doc => 
+      updateDoc(doc.ref, {
+        totalOwed: 0,
+        updatedAt: new Date().toISOString()
+      })
+    );
+    await Promise.all(updatePromises);
   }
 };

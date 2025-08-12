@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { Home, Users, TrendingUp } from 'lucide-react';
+import { Home, Users, TrendingUp, Calendar, RefreshCw } from 'lucide-react';
 import BudgetCard from './components/BudgetCard';
 import AddExpenseForm from './components/AddExpenseForm';
 import ExpenseList from './components/ExpenseList';
+import RoommateManager from './components/RoommateManager';
+import CleaningSchedule from './components/CleaningSchedule';
+import MonthlyReset from './components/MonthlyReset';
 import LoadingSpinner from './components/LoadingSpinner';
 import { budgetService, expenseService } from './firebase/firestore';
 
@@ -18,6 +21,7 @@ interface Expense {
 function App() {
   const [budget, setBudget] = useState<number | null>(null);
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [activeTab, setActiveTab] = useState<'expenses' | 'roommates' | 'cleaning' | 'reset'>('expenses');
   const [isLoading, setIsLoading] = useState(true);
 
   // Calculate total expenses
@@ -66,6 +70,13 @@ function App() {
     return <LoadingSpinner />;
   }
 
+  const tabs = [
+    { id: 'expenses', label: 'Expenses', icon: Home },
+    { id: 'roommates', label: 'Roommates', icon: Users },
+    { id: 'cleaning', label: 'Cleaning', icon: Calendar },
+    { id: 'reset', label: 'Monthly Reset', icon: RefreshCw }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Toaster 
@@ -91,8 +102,8 @@ function App() {
                 <Home className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-800"><i>ROOM RECORDS</i></h1>
-                <p>by:-SIDDHARTH PATEL</p>
+                <h1 className="text-xl font-bold text-gray-800">Room Expense Tracker</h1>
+                <p className="text-sm text-gray-600">Manage your shared expenses</p>
               </div>
             </div>
             
@@ -112,36 +123,82 @@ function App() {
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-8">
+        {/* Tab Navigation */}
+        <div className="mb-8">
+          <div className="flex space-x-1 bg-white p-1 rounded-2xl shadow-lg border border-gray-100">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
+                    activeTab === tab.id
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
+                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span className="hidden sm:inline">{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <div className="space-y-8">
-          {/* Budget Overview */}
-          <BudgetCard
-            budget={budget}
-            totalExpenses={totalExpenses}
-            onBudgetUpdate={handleDataUpdate}
-          />
+          {/* Expenses Tab */}
+          {activeTab === 'expenses' && (
+            <>
+              {/* Budget Overview */}
+              <BudgetCard
+                budget={budget}
+                totalExpenses={totalExpenses}
+                onBudgetUpdate={handleDataUpdate}
+              />
 
-          {/* Add Expense Form */}
-          <AddExpenseForm onExpenseAdded={handleDataUpdate} />
+              {/* Add Expense Form */}
+              <AddExpenseForm onExpenseAdded={handleDataUpdate} />
 
-          {/* Expenses List */}
-          <ExpenseList
-            expenses={expenses}
-            onExpenseUpdated={handleDataUpdate}
-          />
+              {/* Expenses List */}
+              <ExpenseList
+                expenses={expenses}
+                onExpenseUpdated={handleDataUpdate}
+              />
+            </>
+          )}
+
+          {/* Roommates Tab */}
+          {activeTab === 'roommates' && (
+            <RoommateManager
+              totalExpenses={totalExpenses}
+              onDataUpdate={handleDataUpdate}
+            />
+          )}
+
+          {/* Cleaning Tab */}
+          {activeTab === 'cleaning' && (
+            <CleaningSchedule />
+          )}
+
+          {/* Monthly Reset Tab */}
+          {activeTab === 'reset' && (
+            <MonthlyReset onDataUpdate={handleDataUpdate} />
+          )}
         </div>
       </main>
 
       {/* Footer */}
-      {/* <footer className="bg-white/50 backdrop-blur-md border-t border-white/20 mt-16">
+      <footer className="bg-white/50 backdrop-blur-md border-t border-white/20 mt-16">
         <div className="max-w-4xl mx-auto px-4 py-6 text-center">
           <p className="text-gray-600">
-            Built for B.Tech students • Share with your roommates • Real-time sync
+            Built for B.Tech students • Complete room management • Real-time sync
           </p>
           <p className="text-sm text-gray-500 mt-2">
-            💡 Tip: Bookmark this page for quick access
+            💡 Tip: Use tabs to manage expenses, roommates, cleaning & monthly resets
           </p>
         </div>
-      </footer> */}
+      </footer>
     </div>
   );
 }
