@@ -106,10 +106,11 @@ export const expenseService = {
 // Roommate operations
 export const roommateService = {
   // Add new roommate
-  async addRoommate(name: string) {
+  async addRoommate(name: string, profilePic?: string) {
     await addDoc(collection(db, COLLECTIONS.ROOMMATES), {
       name,
-      totalOwed: 0,
+      profilePic: profilePic || '',
+      balance: 0,
       createdAt: new Date().toISOString()
     });
   },
@@ -124,9 +125,18 @@ export const roommateService = {
   },
 
   // Update roommate balance
-  async updateRoommateBalance(id: string, totalOwed: number) {
+  async updateRoommateBalance(id: string, balance: number) {
     await updateDoc(doc(db, COLLECTIONS.ROOMMATES, id), {
-      totalOwed,
+      balance,
+      updatedAt: new Date().toISOString()
+    });
+  },
+
+  // Update roommate profile
+  async updateRoommateProfile(id: string, name: string, profilePic: string) {
+    await updateDoc(doc(db, COLLECTIONS.ROOMMATES, id), {
+      name,
+      profilePic,
       updatedAt: new Date().toISOString()
     });
   },

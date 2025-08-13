@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { Home, Users, TrendingUp, Calendar, RefreshCw } from 'lucide-react';
+import { Home, Users, TrendingUp, Calendar, RefreshCw, BarChart3, Zap } from 'lucide-react';
 import BudgetCard from './components/BudgetCard';
 import AddExpenseForm from './components/AddExpenseForm';
 import ExpenseList from './components/ExpenseList';
 import RoommateManager from './components/RoommateManager';
 import CleaningSchedule from './components/CleaningSchedule';
 import MonthlyReset from './components/MonthlyReset';
+import ExpenseAnalytics from './components/ExpenseAnalytics';
+import QuickActions from './components/QuickActions';
 import LoadingSpinner from './components/LoadingSpinner';
-import { budgetService, expenseService } from './firebase/firestore';
+import { budgetService, expenseService, roommateService } from './firebase/firestore';
+import toast from 'react-hot-toast';
 
 interface Expense {
   id: string;
@@ -21,7 +24,8 @@ interface Expense {
 function App() {
   const [budget, setBudget] = useState<number | null>(null);
   const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [activeTab, setActiveTab] = useState<'expenses' | 'roommates' | 'cleaning' | 'reset'>('expenses');
+  const [roommates, setRoommates] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'expenses' | 'roommates' | 'cleaning' | 'analytics' | 'actions' | 'reset'>('expenses');
   const [isLoading, setIsLoading] = useState(true);
 
   // Calculate total expenses
@@ -45,6 +49,11 @@ function App() {
           setExpenses(expenseData);
         });
 
+        // Set up real-time listener for roommates
+        const roommatesUnsubscribe = roommateService.onRoommatesChange((roommateData) => {
+          setRoommates(roommateData);
+        });
+
         setIsLoading(false);
       } catch (error) {
         console.error('Error setting up real-time listeners:', error);
@@ -66,6 +75,16 @@ function App() {
     // The real-time listeners will automatically update the data
   };
 
+  const handleCalculateSplit = () => {
+    if (roommates.length === 0) {
+      toast.error('Add roommates first to calculate split');
+      return;
+    }
+    
+    const splitAmount = totalExpenses / roommates.length;
+    toast.success(`Each person should pay ₹${splitAmount.toFixed(2)}`);
+  };
+
   if (isLoading) {
     return <LoadingSpinner />;
   }
@@ -74,6 +93,8 @@ function App() {
     { id: 'expenses', label: 'Expenses', icon: Home },
     { id: 'roommates', label: 'Roommates', icon: Users },
     { id: 'cleaning', label: 'Cleaning', icon: Calendar },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+    { id: 'actions', label: 'Actions', icon: Zap },
     { id: 'reset', label: 'Monthly Reset', icon: RefreshCw }
   ];
 
@@ -125,14 +146,14 @@ function App() {
       <main className="max-w-4xl mx-auto px-4 py-8">
         {/* Tab Navigation */}
         <div className="mb-8">
-          <div className="flex space-x-1 bg-white p-1 rounded-2xl shadow-lg border border-gray-100">
+          <div className="flex space-x-1 bg-white p-1 rounded-2xl shadow-lg border border-gray-100 overflow-x-auto">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
+                  className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-xl font-medium transition-all duration-200 whitespace-nowrap ${
                     activeTab === tab.id
                       ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
                       : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
@@ -179,6 +200,20 @@ function App() {
           {/* Cleaning Tab */}
           {activeTab === 'cleaning' && (
             <CleaningSchedule />
+          )}
+
+          {/* Analytics Tab */}
+          {activeTab === 'analytics' && (
+            <ExpenseAnalytics />
+          )}
+
+          {/* Quick Actions Tab */}
+          {activeTab === 'actions' && (
+            <QuickActions
+              totalExpenses={totalExpenses}
+              roommateCount={roommates.length}
+              onCalculateSplit={handleCalculateSplit}
+            />
           )}
 
           {/* Monthly Reset Tab */}
