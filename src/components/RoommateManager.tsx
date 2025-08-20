@@ -1,3 +1,8 @@
+import { 
+  collection, 
+  addDoc
+} from 'firebase/firestore';
+import { db } from '../firebase/config';
 import React, { useState, useEffect } from 'react';
 import { Users, Plus, Trash2, DollarSign, Edit3, Check, X, Upload, User } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -42,19 +47,62 @@ const RoommateManager: React.FC<RoommateManagerProps> = ({ totalExpenses, onData
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, isEdit = false) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        toast.error('Image size should be less than 5MB');
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error('Image size should be less than 10MB');
         return;
       }
 
+      // Compress image before storing
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        // Set canvas size (compress to max 200x200)
+        const maxSize = 200;
+        let { width, height } = img;
+        
+        if (width > height) {
+          if (width > maxSize) {
+            height = (height * maxSize) / width;
+            width = maxSize;
+          }
+        } else {
+          if (height > maxSize) {
+            width = (width * maxSize) / height;
+            height = maxSize;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Draw and compress
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        // Convert to base64 with compression (0.7 quality)
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+        
+        // Check if still too large (should be under 500KB after compression)
+        if (compressedDataUrl.length > 500000) {
+          toast.error('Image is still too large after compression. Please use a smaller image.');
+          return;
+        }
+        
+        if (isEdit) {
+          setEditForm((prev) => ({ ...prev, profilePic: compressedDataUrl }));
+        } else {
+          setNewRoommate((prev) => ({ ...prev, profilePic: compressedDataUrl }));
+        }
+      };
+      
+      img.onerror = () => {
+        toast.error('Failed to load image. Please try a different image.');
+      };
+      
       const reader = new FileReader();
       reader.onload = (e) => {
-        const imageDataUrl = e.target?.result as string;
-        if (isEdit) {
-          setEditForm({ ...editForm, profilePic: imageDataUrl });
-        } else {
-          setNewRoommate({ ...newRoommate, profilePic: imageDataUrl });
-        }
+        img.src = e.target?.result as string;
       };
       reader.readAsDataURL(file);
     }
@@ -67,25 +115,14 @@ const RoommateManager: React.FC<RoommateManagerProps> = ({ totalExpenses, onData
     }
 
     const balance = parseFloat(newRoommate.balance) || 0;
-    if (balance < 0) {
-      toast.error('Balance cannot be negative');
-      return;
-    }
 
     try {
-      await roommateService.addRoommate(
-        newRoommate.name.trim(),
-        newRoommate.profilePic || ''
-      );
-      
-      // If balance is set, update it
-      if (balance > 0) {
-        const roommatesList = await roommateService.getRoommates();
-        const newRoommateDoc = roommatesList.find(r => r.name === newRoommate.name.trim());
-        if (newRoommateDoc) {
-          await roommateService.updateRoommateBalance(newRoommateDoc.id, balance);
-        }
-      }
+      await addDoc(collection(db, 'roommates'), {
+        name: newRoommate.name.trim(),
+        profilePic: newRoommate.profilePic || '',
+        balance: balance,
+        createdAt: new Date().toISOString()
+      });
 
       toast.success('Roommate added successfully!');
       setNewRoommate({ name: '', profilePic: '', balance: '' });
@@ -123,6 +160,7 @@ const RoommateManager: React.FC<RoommateManagerProps> = ({ totalExpenses, onData
       await roommateService.updateRoommateBalance(id, balance);
       toast.success('Roommate updated successfully!');
       setEditingId(null);
+      setEditForm({ name: '', profilePic: '', balance: '' });
       onDataUpdate();
     } catch (error) {
       toast.error('Failed to update roommate');
@@ -207,7 +245,7 @@ const RoommateManager: React.FC<RoommateManagerProps> = ({ totalExpenses, onData
                       <Upload className="w-4 h-4" />
                       <span>Upload Photo</span>
                     </label>
-                    <p className="text-xs text-gray-500 mt-1">Max 5MB</p>
+                    <p className="text-xs text-gray-500 mt-1">Max 10MB (auto-compressed)</p>
                   </div>
                 </div>
               </div>
@@ -391,7 +429,7 @@ const RoommateManager: React.FC<RoommateManagerProps> = ({ totalExpenses, onData
                         <div className="flex items-center space-x-1">
                           <DollarSign className="w-4 h-4 text-orange-600" />
                           <span className="font-semibold text-orange-600">
-                            ₹{roommate.balance ? roommate.balance.toFixed(2) : '0.00'}
+                            ₹{roommate.balance?.toFixed(2) || '0.00'}
                           </span>
                         </div>
                         <div className="text-xs text-gray-500">Balance to pay</div>

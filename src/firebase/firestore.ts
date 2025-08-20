@@ -107,12 +107,13 @@ export const expenseService = {
 export const roommateService = {
   // Add new roommate
   async addRoommate(name: string, profilePic?: string) {
-    await addDoc(collection(db, COLLECTIONS.ROOMMATES), {
+    const docRef = await addDoc(collection(db, COLLECTIONS.ROOMMATES), {
       name,
       profilePic: profilePic || '',
       balance: 0,
       createdAt: new Date().toISOString()
     });
+    return docRef.id;
   },
 
   // Get all roommates

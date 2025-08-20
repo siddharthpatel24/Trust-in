@@ -49,7 +49,7 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ onExpenseAdded }) => {
     }
   };
 
-  const quickExpenses = ['Room-Rent','vegetables', 'chicken', 'water', 'Cleaners', 'kiranam', 'Eggs','Rice-Bag'];
+  const quickExpenses = ['Room-Rent','vegetables', 'chicken', 'water', 'Cleaners', 'kiranam', 'Eggs','Rice-Bag','MILK'];
 
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-gray-100">
