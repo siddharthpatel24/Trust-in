@@ -12,6 +12,7 @@ interface BudgetCardProps {
 const BudgetCard: React.FC<BudgetCardProps> = ({ budget, totalExpenses, onBudgetUpdate }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newBudget, setNewBudget] = useState(budget?.toString() || '');
+  const [budgetMode, setBudgetMode] = useState<'set' | 'add'>('set');
 
   const remainingBalance = budget ? budget - totalExpenses : 0;
   const budgetUsedPercentage = budget ? (totalExpenses / budget) * 100 : 0;
@@ -24,8 +25,15 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ budget, totalExpenses, onBudget
     }
 
     try {
-      await budgetService.setBudget(amount);
-      toast.success('Budget updated successfully!');
+      const finalAmount = budgetMode === 'add' && budget ? budget + amount : amount;
+      await budgetService.setBudget(finalAmount);
+      
+      if (budgetMode === 'add') {
+        toast.success(`₹${amount} added to budget! New total: ₹${finalAmount}`);
+      } else {
+        toast.success('Budget updated successfully!');
+      }
+      
       setIsEditing(false);
       onBudgetUpdate();
     } catch (error) {
@@ -63,6 +71,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ budget, totalExpenses, onBudget
             onClick={() => {
               setIsEditing(true);
               setNewBudget(budget.toString());
+              setBudgetMode('set');
             }}
             className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
           >
@@ -74,29 +83,80 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ budget, totalExpenses, onBudget
       {budget ? (
         <div className="space-y-4">
           {isEditing ? (
-            <div className="flex items-center space-x-2">
+            <div className="space-y-3">
+              {/* Budget Mode Selection */}
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => setBudgetMode('set')}
+                  className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                    budgetMode === 'set'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Set New Budget
+                </button>
+                <button
+                  onClick={() => setBudgetMode('add')}
+                  className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                    budgetMode === 'add'
+                      ? 'bg-green-500 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Add to Current
+                </button>
+              </div>
+              
+              {/* Current Budget Display for Add Mode */}
+              {budgetMode === 'add' && (
+                <div className="p-3 bg-blue-50 rounded-lg">
+                  <div className="text-sm text-blue-700">
+                    Current Budget: <span className="font-semibold">₹{budget}</span>
+                  </div>
+                </div>
+              )}
+              
+              {/* Amount Input */}
               <div className="flex-1">
                 <input
                   type="number"
                   value={newBudget}
                   onChange={(e) => setNewBudget(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter budget amount"
+                  placeholder={budgetMode === 'add' ? 'Enter amount to add' : 'Enter new budget amount'}
                   autoFocus
                 />
               </div>
+              
+              {/* Preview for Add Mode */}
+              {budgetMode === 'add' && newBudget && parseFloat(newBudget) > 0 && (
+                <div className="p-3 bg-green-50 rounded-lg">
+                  <div className="text-sm text-green-700">
+                    New Total: <span className="font-semibold">₹{budget + parseFloat(newBudget)}</span>
+                  </div>
+                </div>
+              )}
+              
+              {/* Action Buttons */}
+              <div className="flex space-x-2">
               <button
                 onClick={handleSetBudget}
-                className="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                className={`flex-1 py-2 px-4 text-white rounded-lg font-medium transition-colors ${
+                  budgetMode === 'add' 
+                    ? 'bg-green-500 hover:bg-green-600' 
+                    : 'bg-blue-500 hover:bg-blue-600'
+                }`}
               >
-                <Check className="w-4 h-4" />
+                {budgetMode === 'add' ? 'Add Money' : 'Set Budget'}
               </button>
               <button
                 onClick={() => setIsEditing(false)}
-                className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
               >
-                <X className="w-4 h-4" />
+                Cancel
               </button>
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -169,4 +229,4 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ budget, totalExpenses, onBudget
   );
 };
 
-export default BudgetCard;
+export default BudgetCard;q
