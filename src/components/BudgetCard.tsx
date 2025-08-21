@@ -229,4 +229,4 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ budget, totalExpenses, onBudget
   );
 };
 
-export default BudgetCard;q
+export default BudgetCard;
