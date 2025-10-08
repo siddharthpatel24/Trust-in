@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { Home, Users, TrendingUp, Calendar, RefreshCw, BarChart3, Zap, Sparkles } from 'lucide-react';
 import { useTheme } from './contexts/ThemeContext';
 import GlassCard from './components/GlassCard';
-import GradientButton from './components/GradientButton';
-import ThemeToggle from './components/ThemeToggle';
 import BudgetCard from './components/BudgetCard';
 import AddExpenseForm from './components/AddExpenseForm';
 import ExpenseList from './components/ExpenseList';
@@ -176,7 +174,7 @@ function App() {
                     ? 'from-white to-gray-300' 
                     : 'from-gray-800 to-gray-600'
                 } bg-clip-text text-transparent`}>
-                  Room Expense Tracker
+                  Room Records
                 </h1>
                 <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                   Manage your shared expenses
@@ -294,21 +292,7 @@ function App() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className={`backdrop-blur-xl border-t mt-16 transition-all duration-300 ${
-        isDark 
-          ? 'bg-black/20 border-white/10' 
-          : 'bg-white/30 border-white/20'
-      }`}>
-        <div className="max-w-4xl mx-auto px-4 py-6 text-center">
-          <p className={`${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-            Built for B.Tech students • Complete room management • Real-time sync
-          </p>
-          <p className={`text-sm mt-2 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
-            💡 Tip: Use tabs to manage expenses, roommates, cleaning & monthly resets
-          </p>
-        </div>
-      </footer>
+      
     </div>
   );
 }
