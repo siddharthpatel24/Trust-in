@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { Home, Users, TrendingUp, Calendar, RefreshCw, BarChart3, Zap } from 'lucide-react';
+import { Home, Users, TrendingUp, Calendar, RefreshCw, BarChart3, Zap, Sparkles } from 'lucide-react';
+import { useTheme } from './contexts/ThemeContext';
+import GlassCard from './components/GlassCard';
+import GradientButton from './components/GradientButton';
+import ThemeToggle from './components/ThemeToggle';
 import BudgetCard from './components/BudgetCard';
 import AddExpenseForm from './components/AddExpenseForm';
 import ExpenseList from './components/ExpenseList';
@@ -22,6 +26,7 @@ interface Expense {
 }
 
 function App() {
+  const { isDark } = useTheme();
   const [budget, setBudget] = useState<number | null>(null);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [roommates, setRoommates] = useState<any[]>([]);
@@ -99,43 +104,102 @@ function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className={`min-h-screen transition-all duration-500 ${
+      isDark 
+        ? 'bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900' 
+        : 'bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50'
+    }`}>
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className={`absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-20 animate-pulse-slow ${
+          isDark ? 'bg-purple-500' : 'bg-blue-400'
+        }`} />
+        <div className={`absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl opacity-20 animate-pulse-slow animation-delay-2000 ${
+          isDark ? 'bg-pink-500' : 'bg-purple-400'
+        }`} />
+        <div className={`absolute top-1/2 left-1/2 w-96 h-96 rounded-full blur-3xl opacity-10 animate-spin-slow ${
+          isDark ? 'bg-blue-500' : 'bg-pink-400'
+        }`} />
+      </div>
+
       <Toaster 
         position="top-right"
         toastOptions={{
           duration: 3000,
           style: {
-            background: '#fff',
-            color: '#374151',
-            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-            borderRadius: '12px',
-            border: '1px solid #f3f4f6'
+            background: isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.9)',
+            color: isDark ? '#f3f4f6' : '#374151',
+            backdropFilter: 'blur(16px)',
+            boxShadow: isDark ? '0 25px 50px rgba(0, 0, 0, 0.5)' : '0 25px 50px rgba(0, 0, 0, 0.1)',
+            borderRadius: '16px',
+            border: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(255, 255, 255, 0.2)'
           }
         }}
       />
       
+      {/* Version Banner */}
+      <div className={`sticky top-0 z-50 backdrop-blur-md border-b transition-all duration-300 ${
+        isDark 
+          ? 'bg-black/20 border-white/10' 
+          : 'bg-white/20 border-white/20'
+      }`}>
+        <div className="max-w-4xl mx-auto px-4 py-2">
+          <div className="flex items-center justify-center space-x-2 text-sm font-medium">
+            <Sparkles className={`w-4 h-4 ${isDark ? 'text-purple-400' : 'text-purple-600'} animate-pulse`} />
+            <span className={`bg-gradient-to-r ${
+              isDark 
+                ? 'from-purple-400 to-pink-400' 
+                : 'from-purple-600 to-pink-600'
+            } bg-clip-text text-transparent`}>
+              ✨ Version 2.0 - New Look! Same Simplicity.
+            </span>
+            <Sparkles className={`w-4 h-4 ${isDark ? 'text-pink-400' : 'text-pink-600'} animate-pulse`} />
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-white/20 sticky top-0 z-50">
+      <header className={`backdrop-blur-xl border-b sticky top-12 z-40 transition-all duration-300 ${
+        isDark 
+          ? 'bg-black/40 border-white/10' 
+          : 'bg-white/40 border-white/20'
+      }`}>
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl">
+              <div className="p-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-2xl shadow-lg animate-gradient">
                 <Home className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-800">Room Records</h1>
-                <p className="text-sm text-gray-600">BY:siddharth patel</p>
+                <h1 className={`text-xl font-bold bg-gradient-to-r ${
+                  isDark 
+                    ? 'from-white to-gray-300' 
+                    : 'from-gray-800 to-gray-600'
+                } bg-clip-text text-transparent`}>
+                  Room Expense Tracker
+                </h1>
+                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Manage your shared expenses
+                </p>
               </div>
             </div>
             
             <div className="flex items-center space-x-4">
-              <div className="hidden sm:flex items-center space-x-2 bg-gradient-to-r from-green-100 to-blue-100 px-3 py-2 rounded-full">
-                <Users className="w-4 h-4 text-green-600" />
-                <span className="text-sm font-medium text-green-700">Shared Room</span>
+              <div className={`hidden sm:flex items-center space-x-2 px-4 py-2 rounded-2xl backdrop-blur-md border transition-all duration-300 ${
+                isDark 
+                  ? 'bg-green-500/20 border-green-400/30 text-green-300' 
+                  : 'bg-green-100/80 border-green-200/50 text-green-700'
+              }`}>
+                <Users className="w-4 h-4" />
+                <span className="text-sm font-medium">Shared Room</span>
               </div>
-              <div className="flex items-center space-x-2 bg-gradient-to-r from-purple-100 to-pink-100 px-3 py-2 rounded-full">
-                <TrendingUp className="w-4 h-4 text-purple-600" />
-                <span className="text-sm font-medium text-purple-700">Live Sync</span>
+              <div className={`flex items-center space-x-2 px-4 py-2 rounded-2xl backdrop-blur-md border transition-all duration-300 ${
+                isDark 
+                  ? 'bg-purple-500/20 border-purple-400/30 text-purple-300' 
+                  : 'bg-purple-100/80 border-purple-200/50 text-purple-700'
+              }`}>
+                <TrendingUp className="w-4 h-4 animate-pulse" />
+                <span className="text-sm font-medium">Live Sync</span>
               </div>
             </div>
           </div>
@@ -146,25 +210,32 @@ function App() {
       <main className="max-w-4xl mx-auto px-4 py-8">
         {/* Tab Navigation */}
         <div className="mb-8">
-          <div className="flex space-x-1 bg-white p-1 rounded-2xl shadow-lg border border-gray-100 overflow-x-auto">
+          <GlassCard className="p-2">
+            <div className="flex space-x-2 overflow-x-auto">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-xl font-medium transition-all duration-200 whitespace-nowrap ${
+                  className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-2xl font-medium transition-all duration-300 whitespace-nowrap relative overflow-hidden group ${
                     activeTab === tab.id
-                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
-                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                      ? `bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/25 ${
+                          isDark ? 'shadow-purple-400/20' : 'shadow-purple-500/25'
+                        }`
+                      : `${isDark ? 'text-gray-300 hover:text-white hover:bg-white/10' : 'text-gray-600 hover:text-gray-800 hover:bg-white/50'}`
                   }`}
                 >
+                  {activeTab !== tab.id && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
+                  )}
                   <Icon className="w-4 h-4" />
-                  <span className="hidden sm:inline">{tab.label}</span>
+                  <span className="hidden sm:inline relative z-10">{tab.label}</span>
                 </button>
               );
             })}
-          </div>
+            </div>
+          </GlassCard>
         </div>
 
         <div className="space-y-8">
@@ -223,17 +294,21 @@ function App() {
         </div>
       </main>
 
-      Footer
-      {/* <footer className="bg-white/50 backdrop-blur-md border-t border-white/20 mt-16">
+      {/* Footer */}
+      <footer className={`backdrop-blur-xl border-t mt-16 transition-all duration-300 ${
+        isDark 
+          ? 'bg-black/20 border-white/10' 
+          : 'bg-white/30 border-white/20'
+      }`}>
         <div className="max-w-4xl mx-auto px-4 py-6 text-center">
-          <p className="text-gray-600">
+          <p className={`${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
             Built for B.Tech students • Complete room management • Real-time sync
           </p>
-          <p className="text-sm text-gray-500 mt-2">
+          <p className={`text-sm mt-2 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
             💡 Tip: Use tabs to manage expenses, roommates, cleaning & monthly resets
           </p>
         </div>
-      </footer> */}
+      </footer>
     </div>
   );
 }

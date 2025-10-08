@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
-import { DollarSign, Edit3, Check, X } from 'lucide-react';
+import { DollarSign, CreditCard as Edit3, Check, X } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTheme } from '../contexts/ThemeContext';
+import GlassCard from './GlassCard';
+import GradientButton from './GradientButton';
+import AnimatedCounter from './AnimatedCounter';
 import { budgetService } from '../firebase/firestore';
 
 interface BudgetCardProps {
@@ -10,6 +14,7 @@ interface BudgetCardProps {
 }
 
 const BudgetCard: React.FC<BudgetCardProps> = ({ budget, totalExpenses, onBudgetUpdate }) => {
+  const { isDark } = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [newBudget, setNewBudget] = useState(budget?.toString() || '');
   const [budgetMode, setBudgetMode] = useState<'set' | 'add'>('set');
@@ -55,25 +60,31 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ budget, totalExpenses, onBudget
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+    <GlassCard className="p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
-          <div className="p-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl">
+          <div className="p-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-2xl shadow-lg animate-gradient">
             <DollarSign className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-gray-800">Monthly Budget</h2>
-            <p className="text-sm text-gray-500">Track your room expenses</p>
+            <h2 className={`text-xl font-semibold bg-gradient-to-r ${
+              isDark ? 'from-white to-gray-300' : 'from-gray-800 to-gray-600'
+            } bg-clip-text text-transparent`}>
+              Monthly Budget
+            </h2>
           </div>
         </div>
         {budget && !isEditing && (
           <button
             onClick={() => {
               setIsEditing(true);
-              setNewBudget(budget.toString());
               setBudgetMode('set');
             }}
-            className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+            className={`p-2 rounded-xl transition-all duration-300 hover:scale-110 ${
+              isDark 
+                ? 'text-gray-400 hover:text-blue-400 hover:bg-blue-500/20 border border-white/10 hover:border-blue-400/30' 
+                : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50/80 border-gray-200/50 hover:border-blue-300/50'
+            }`}
           >
             <Edit3 className="w-4 h-4" />
           </button>
@@ -88,20 +99,20 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ budget, totalExpenses, onBudget
               <div className="flex space-x-2">
                 <button
                   onClick={() => setBudgetMode('set')}
-                  className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                  className={`flex-1 py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 ${
                     budgetMode === 'set'
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg'
+                      : `${isDark ? 'bg-white/10 text-gray-300 hover:bg-white/20' : 'bg-gray-100/80 text-gray-700 hover:bg-gray-200/80'}`
                   }`}
                 >
                   Set New Budget
                 </button>
                 <button
                   onClick={() => setBudgetMode('add')}
-                  className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                  className={`flex-1 py-3 px-4 rounded-2xl text-sm font-medium transition-all duration-300 ${
                     budgetMode === 'add'
-                      ? 'bg-green-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
+                      : `${isDark ? 'bg-white/10 text-gray-300 hover:bg-white/20' : 'bg-gray-100/80 text-gray-700 hover:bg-gray-200/80'}`
                   }`}
                 >
                   Add to Current
@@ -110,9 +121,13 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ budget, totalExpenses, onBudget
               
               {/* Current Budget Display for Add Mode */}
               {budgetMode === 'add' && (
-                <div className="p-3 bg-blue-50 rounded-lg">
-                  <div className="text-sm text-blue-700">
-                    Current Budget: <span className="font-semibold">₹{budget}</span>
+                <div className={`p-4 rounded-2xl backdrop-blur-md border ${
+                  isDark 
+                    ? 'bg-blue-500/20 border-blue-400/30 text-blue-300' 
+                    : 'bg-blue-50/80 border-blue-200/50 text-blue-700'
+                }`}>
+                  <div className="text-sm">
+                    Current Budget: <span className="font-semibold">₹<AnimatedCounter value={budget} /></span>
                   </div>
                 </div>
               )}
@@ -123,7 +138,11 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ budget, totalExpenses, onBudget
                   type="number"
                   value={newBudget}
                   onChange={(e) => setNewBudget(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className={`w-full px-4 py-3 rounded-2xl backdrop-blur-md border transition-all duration-300 focus:outline-none focus:ring-2 focus:scale-105 ${
+                    isDark 
+                      ? 'bg-white/10 border-white/20 text-white placeholder-gray-400 focus:ring-purple-400 focus:border-purple-400/50' 
+                      : 'bg-white/80 border-gray-300/50 text-gray-800 placeholder-gray-500 focus:ring-purple-500 focus:border-purple-500/50'
+                  }`}
                   placeholder={budgetMode === 'add' ? 'Enter amount to add' : 'Enter new budget amount'}
                   autoFocus
                 />
@@ -131,46 +150,64 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ budget, totalExpenses, onBudget
               
               {/* Preview for Add Mode */}
               {budgetMode === 'add' && newBudget && parseFloat(newBudget) > 0 && (
-                <div className="p-3 bg-green-50 rounded-lg">
-                  <div className="text-sm text-green-700">
-                    New Total: <span className="font-semibold">₹{budget + parseFloat(newBudget)}</span>
+                <div className={`p-4 rounded-2xl backdrop-blur-md border ${
+                  isDark 
+                    ? 'bg-green-500/20 border-green-400/30 text-green-300' 
+                    : 'bg-green-50/80 border-green-200/50 text-green-700'
+                }`}>
+                  <div className="text-sm">
+                    New Total: <span className="font-semibold">₹<AnimatedCounter value={budget + parseFloat(newBudget)} /></span>
                   </div>
                 </div>
               )}
               
               {/* Action Buttons */}
               <div className="flex space-x-2">
-              <button
-                onClick={handleSetBudget}
-                className={`flex-1 py-2 px-4 text-white rounded-lg font-medium transition-colors ${
-                  budgetMode === 'add' 
-                    ? 'bg-green-500 hover:bg-green-600' 
-                    : 'bg-blue-500 hover:bg-blue-600'
-                }`}
-              >
-                {budgetMode === 'add' ? 'Add Money' : 'Set Budget'}
-              </button>
-              <button
-                onClick={() => setIsEditing(false)}
-                className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-              >
-                Cancel
-              </button>
+                <GradientButton
+                  onClick={handleSetBudget}
+                  variant={budgetMode === 'add' ? 'success' : 'primary'}
+                  className="flex-1"
+                >
+                  {budgetMode === 'add' ? 'Add Money' : 'Set Budget'}
+                </GradientButton>
+                <GradientButton
+                  onClick={() => setIsEditing(false)}
+                  variant="secondary"
+                  className="px-6"
+                >
+                  Cancel
+                </GradientButton>
               </div>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="text-center p-4 bg-blue-50 rounded-xl">
-                <div className="text-2xl font-bold text-blue-600">₹{budget}</div>
-                <div className="text-sm text-blue-600 mt-1">Total Budget</div>
+              <div className={`text-center p-6 rounded-2xl backdrop-blur-md border transition-all duration-300 hover:scale-105 ${
+                isDark 
+                  ? 'bg-blue-500/20 border-blue-400/30' 
+                  : 'bg-blue-50/80 border-blue-200/50'
+              }`}>
+                <div className={`text-2xl font-bold ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
+                  ₹<AnimatedCounter value={budget} />
+                </div>
+                <div className={`text-sm mt-1 ${isDark ? 'text-blue-300' : 'text-blue-600'}`}>Total Budget</div>
               </div>
-              <div className="text-center p-4 bg-red-50 rounded-xl">
-                <div className="text-2xl font-bold text-red-600">₹{totalExpenses}</div>
-                <div className="text-sm text-red-600 mt-1">Total Spent</div>
+              <div className={`text-center p-6 rounded-2xl backdrop-blur-md border transition-all duration-300 hover:scale-105 ${
+                isDark 
+                  ? 'bg-red-500/20 border-red-400/30' 
+                  : 'bg-red-50/80 border-red-200/50'
+              }`}>
+                <div className={`text-2xl font-bold ${isDark ? 'text-red-400' : 'text-red-600'}`}>
+                  ₹<AnimatedCounter value={totalExpenses} />
+                </div>
+                <div className={`text-sm mt-1 ${isDark ? 'text-red-300' : 'text-red-600'}`}>Total Spent</div>
               </div>
-              <div className="text-center p-4 bg-green-50 rounded-xl">
+              <div className={`text-center p-6 rounded-2xl backdrop-blur-md border transition-all duration-300 hover:scale-105 ${
+                isDark 
+                  ? 'bg-green-500/20 border-green-400/30' 
+                  : 'bg-green-50/80 border-green-200/50'
+              }`}>
                 <div className={`text-2xl font-bold ${getStatusColor()}`}>
-                  ₹{remainingBalance}
+                  ₹<AnimatedCounter value={remainingBalance} />
                 </div>
                 <div className={`text-sm mt-1 ${getStatusColor()}`}>
                   Remaining
@@ -182,19 +219,25 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ budget, totalExpenses, onBudget
           {!isEditing && (
             <div className="mt-6">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-gray-700">Budget Usage</span>
-                <span className="text-sm text-gray-600">
+                <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Budget Usage</span>
+                <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                   {budgetUsedPercentage.toFixed(1)}%
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
+              <div className={`w-full rounded-full h-4 backdrop-blur-md ${isDark ? 'bg-white/10' : 'bg-gray-200/80'}`}>
                 <div
-                  className={`h-3 rounded-full transition-all duration-500 ${getProgressColor()}`}
+                  className={`h-4 rounded-full transition-all duration-1000 bg-gradient-to-r ${
+                    budgetUsedPercentage >= 90 
+                      ? 'from-red-500 to-pink-500' 
+                      : budgetUsedPercentage >= 70 
+                        ? 'from-orange-500 to-red-500' 
+                        : 'from-green-500 to-emerald-500'
+                  } shadow-lg`}
                   style={{ width: `${Math.min(budgetUsedPercentage, 100)}%` }}
                 />
               </div>
               {budgetUsedPercentage >= 90 && (
-                <p className="text-sm text-red-600 mt-2 font-medium">
+                <p className={`text-sm mt-3 font-medium animate-pulse ${isDark ? 'text-red-400' : 'text-red-600'}`}>
                   ⚠️ You're running low on budget!
                 </p>
               )}
@@ -204,28 +247,38 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ budget, totalExpenses, onBudget
       ) : (
         <div className="text-center py-8">
           <div className="mb-4">
-            <div className="text-gray-400 text-6xl mb-2">💰</div>
-            <h3 className="text-lg font-medium text-gray-800 mb-2">Set Your Monthly Budget</h3>
-            <p className="text-gray-600 mb-6">Start tracking your room expenses by setting a monthly budget</p>
+            <div className="text-6xl mb-4 animate-bounce-slow">💰</div>
+            <h3 className={`text-lg font-medium mb-2 ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
+              Set Your Monthly Budget
+            </h3>
+            <p className={`mb-6 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+              Start tracking your room expenses by setting a monthly budget
+            </p>
           </div>
           <div className="max-w-xs mx-auto">
             <input
               type="number"
               value={newBudget}
               onChange={(e) => setNewBudget(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
+              className={`w-full px-4 py-4 rounded-2xl backdrop-blur-md border transition-all duration-300 focus:outline-none focus:ring-2 focus:scale-105 mb-6 ${
+                isDark 
+                  ? 'bg-white/10 border-white/20 text-white placeholder-gray-400 focus:ring-purple-400 focus:border-purple-400/50' 
+                  : 'bg-white/80 border-gray-300/50 text-gray-800 placeholder-gray-500 focus:ring-purple-500 focus:border-purple-500/50'
+              }`}
               placeholder="Enter budget amount"
             />
-            <button
+            <GradientButton
               onClick={handleSetBudget}
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+              variant="primary"
+              size="lg"
+              className="w-full"
             >
               Set Budget
-            </button>
+            </GradientButton>
           </div>
         </div>
       )}
-    </div>
+    </GlassCard>
   );
 };
 
