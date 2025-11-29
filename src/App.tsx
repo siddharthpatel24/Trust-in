@@ -1,8 +1,14 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { Home, Users, TrendingUp, Calendar, RefreshCw, BarChart3, Zap, Sparkles } from 'lucide-react';
 import { useTheme } from './contexts/ThemeContext';
+import { getCurrentUser } from './utils/userManager';
 import GlassCard from './components/GlassCard';
+import GradientButton from './components/GradientButton';
+import ThemeToggle from './components/ThemeToggle';
+import UserSetup from './components/UserSetup';
+import UserProfile from './components/UserProfile';
+import DeleteAllExpenses from './components/DeleteAllExpenses';
 import BudgetCard from './components/BudgetCard';
 import AddExpenseForm from './components/AddExpenseForm';
 import ExpenseList from './components/ExpenseList';
@@ -25,18 +31,17 @@ interface Expense {
 
 function App() {
   const { isDark } = useTheme();
+  const [currentUser, setCurrentUser] = useState(getCurrentUser());
   const [budget, setBudget] = useState<number | null>(null);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [roommates, setRoommates] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'expenses' | 'roommates' | 'cleaning' | 'analytics' | 'actions' | 'reset'>('expenses');
   const [isLoading, setIsLoading] = useState(true);
 
-  // Calculate total expenses
-  const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-
   useEffect(() => {
     let budgetUnsubscribe: (() => void) | undefined;
     let expensesUnsubscribe: (() => void) | undefined;
+    let roommatesUnsubscribe: (() => void) | undefined;
 
     const setupRealtimeListeners = async () => {
       try {
@@ -53,7 +58,7 @@ function App() {
         });
 
         // Set up real-time listener for roommates
-        const roommatesUnsubscribe = roommateService.onRoommatesChange((roommateData) => {
+        roommatesUnsubscribe = roommateService.onRoommatesChange((roommateData) => {
           setRoommates(roommateData);
         });
 
@@ -64,14 +69,27 @@ function App() {
       }
     };
 
-    setupRealtimeListeners();
+    if (currentUser) {
+      setupRealtimeListeners();
+    } else {
+      setIsLoading(false);
+    }
 
     // Cleanup listeners on unmount
     return () => {
       if (budgetUnsubscribe) budgetUnsubscribe();
       if (expensesUnsubscribe) expensesUnsubscribe();
+      if (roommatesUnsubscribe) roommatesUnsubscribe();
     };
-  }, []);
+  }, [currentUser]);
+
+  // Calculate total expenses
+  const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+
+  // Show user setup if no user exists
+  if (!currentUser) {
+    return <UserSetup onUserCreated={(user) => setCurrentUser(user)} />;
+  }
 
   const handleDataUpdate = () => {
     // This function can be used to trigger manual updates if needed
@@ -174,7 +192,7 @@ function App() {
                     ? 'from-white to-gray-300' 
                     : 'from-gray-800 to-gray-600'
                 } bg-clip-text text-transparent`}>
-                  Room Records
+                  Room Expense Tracker
                 </h1>
                 <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                   Manage your shared expenses
@@ -240,6 +258,9 @@ function App() {
           {/* Expenses Tab */}
           {activeTab === 'expenses' && (
             <>
+              {/* User Profile */}
+              <UserProfile onUserUpdated={() => setCurrentUser(getCurrentUser())} />
+
               {/* Budget Overview */}
               <BudgetCard
                 budget={budget}
@@ -255,6 +276,14 @@ function App() {
                 expenses={expenses}
                 onExpenseUpdated={handleDataUpdate}
               />
+
+              {/* Delete All Expenses */}
+              {expenses.length > 0 && (
+                <DeleteAllExpenses
+                  onExpensesDeleted={handleDataUpdate}
+                  expenseCount={expenses.length}
+                />
+              )}
             </>
           )}
 
@@ -292,7 +321,21 @@ function App() {
         </div>
       </main>
 
-      
+      {/* Footer */}
+      <footer className={`backdrop-blur-xl border-t mt-16 transition-all duration-300 ${
+        isDark 
+          ? 'bg-black/20 border-white/10' 
+          : 'bg-white/30 border-white/20'
+      }`}>
+        <div className="max-w-4xl mx-auto px-4 py-6 text-center">
+          <p className={`${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+            Built for B.Tech students • Complete room management • Real-time sync
+          </p>
+          <p className={`text-sm mt-2 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+            💡 Tip: Use tabs to manage expenses, roommates, cleaning & monthly resets
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

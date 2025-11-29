@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Plus, Calendar, DollarSign, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -6,6 +7,7 @@ import GlassCard from './GlassCard';
 import GradientButton from './GradientButton';
 import { expenseService } from '../firebase/firestore';
 import { format } from 'date-fns';
+import { getCurrentUser } from '../utils/userManager';
 
 interface AddExpenseFormProps {
   onExpenseAdded: () => void;
@@ -22,6 +24,12 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ onExpenseAdded }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    const currentUser = getCurrentUser();
+    if (!currentUser) {
+      toast.error('User not found. Please refresh the page.');
+      return;
+    }
+    
     if (!title.trim() || !amount || !date) {
       toast.error('Please fill in all fields');
       return;
@@ -36,7 +44,7 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ onExpenseAdded }) => {
     setIsLoading(true);
 
     try {
-      await expenseService.addExpense(title.trim(), expenseAmount, date);
+      await expenseService.addExpense(title.trim(), expenseAmount, date, currentUser.name, currentUser.id);
       toast.success('Expense added successfully!');
       
       // Reset form
