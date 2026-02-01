@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { Home, Users, TrendingUp, Calendar, RefreshCw, BarChart3, Zap, Sparkles } from 'lucide-react';
+import { Home, Users, TrendingUp, Calendar, RefreshCw, BarChart3, Zap, Sparkles, Droplets } from 'lucide-react';
 import { useTheme } from './contexts/ThemeContext';
 import { getCurrentUser } from './utils/userManager';
 import GlassCard from './components/GlassCard';
@@ -18,6 +18,7 @@ import MonthlyReset from './components/MonthlyReset';
 import ExpenseAnalytics from './components/ExpenseAnalytics';
 import QuickActions from './components/QuickActions';
 import LoadingSpinner from './components/LoadingSpinner';
+import WaterDutyTracker from './components/WaterDutyTracker';
 import { budgetService, expenseService, roommateService } from './firebase/firestore';
 import toast from 'react-hot-toast';
 
@@ -113,6 +114,7 @@ function App() {
   const tabs = [
     { id: 'expenses', label: 'Expenses', icon: Home },
     { id: 'roommates', label: 'Roommates', icon: Users },
+    { id: 'water-duty', label: 'Water Duty', icon: Droplets },
     { id: 'cleaning', label: 'Cleaning', icon: Calendar },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
     { id: 'actions', label: 'Actions', icon: Zap },
@@ -120,21 +122,21 @@ function App() {
   ];
 
   return (
-    <div className={`min-h-screen transition-all duration-500 ${
+    <div className={`min-h-screen transition-all duration-700 ${
       isDark 
-        ? 'bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900' 
-        : 'bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50'
+        ? 'bg-gradient-to-br from-slate-900 via-emerald-900 to-teal-900' 
+        : 'bg-gradient-to-br from-emerald-50 via-cyan-50 to-blue-50'
     }`}>
       {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className={`absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-20 animate-pulse-slow ${
-          isDark ? 'bg-purple-500' : 'bg-blue-400'
+        <div className={`absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-30 animate-float ${
+          isDark ? 'bg-emerald-500' : 'bg-cyan-400'
         }`} />
-        <div className={`absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl opacity-20 animate-pulse-slow animation-delay-2000 ${
-          isDark ? 'bg-pink-500' : 'bg-purple-400'
+        <div className={`absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl opacity-25 animate-pulse-slow ${
+          isDark ? 'bg-teal-500' : 'bg-blue-400'
         }`} />
-        <div className={`absolute top-1/2 left-1/2 w-96 h-96 rounded-full blur-3xl opacity-10 animate-spin-slow ${
-          isDark ? 'bg-blue-500' : 'bg-pink-400'
+        <div className={`absolute top-1/2 left-1/2 w-96 h-96 rounded-full blur-3xl opacity-20 animate-spin-slow ${
+          isDark ? 'bg-cyan-500' : 'bg-emerald-400'
         }`} />
       </div>
 
@@ -143,12 +145,12 @@ function App() {
         toastOptions={{
           duration: 3000,
           style: {
-            background: isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.9)',
+            background: isDark ? 'rgba(6, 78, 59, 0.9)' : 'rgba(236, 254, 255, 0.95)',
             color: isDark ? '#f3f4f6' : '#374151',
             backdropFilter: 'blur(16px)',
-            boxShadow: isDark ? '0 25px 50px rgba(0, 0, 0, 0.5)' : '0 25px 50px rgba(0, 0, 0, 0.1)',
+            boxShadow: isDark ? '0 25px 50px rgba(6, 78, 59, 0.5)' : '0 25px 50px rgba(34, 197, 94, 0.1)',
             borderRadius: '16px',
-            border: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(255, 255, 255, 0.2)'
+            border: isDark ? '1px solid rgba(52, 211, 153, 0.2)' : '1px solid rgba(34, 197, 94, 0.2)'
           }
         }}
       />
@@ -156,20 +158,20 @@ function App() {
       {/* Version Banner */}
       <div className={`sticky top-0 z-50 backdrop-blur-md border-b transition-all duration-300 ${
         isDark 
-          ? 'bg-black/20 border-white/10' 
-          : 'bg-white/20 border-white/20'
+          ? 'bg-emerald-900/30 border-emerald-400/20' 
+          : 'bg-cyan-50/40 border-cyan-200/30'
       }`}>
         <div className="max-w-4xl mx-auto px-4 py-2">
-          <div className="flex items-center justify-center space-x-2 text-sm font-medium">
-            <Sparkles className={`w-4 h-4 ${isDark ? 'text-purple-400' : 'text-purple-600'} animate-pulse`} />
+          <div className="flex items-center justify-center space-x-2 text-sm font-medium animate-slide-up">
+            <Sparkles className={`w-4 h-4 ${isDark ? 'text-emerald-400' : 'text-cyan-600'} animate-wiggle`} />
             <span className={`bg-gradient-to-r ${
               isDark 
-                ? 'from-purple-400 to-pink-400' 
-                : 'from-purple-600 to-pink-600'
+                ? 'from-emerald-400 to-cyan-400' 
+                : 'from-cyan-600 to-blue-600'
             } bg-clip-text text-transparent`}>
-              ✨ Version 2.0 - New Look! Same Simplicity.
+              🌟 Fresh Update 2024 - Refreshed & Renewed!
             </span>
-            <Sparkles className={`w-4 h-4 ${isDark ? 'text-pink-400' : 'text-pink-600'} animate-pulse`} />
+            <Sparkles className={`w-4 h-4 ${isDark ? 'text-cyan-400' : 'text-blue-600'} animate-wiggle`} />
           </div>
         </div>
       </div>
@@ -177,24 +179,24 @@ function App() {
       {/* Header */}
       <header className={`backdrop-blur-xl border-b sticky top-12 z-40 transition-all duration-300 ${
         isDark 
-          ? 'bg-black/40 border-white/10' 
-          : 'bg-white/40 border-white/20'
+          ? 'bg-emerald-900/40 border-emerald-400/20' 
+          : 'bg-cyan-50/50 border-cyan-200/30'
       }`}>
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-2xl shadow-lg animate-gradient">
+              <div className="p-3 bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-500 rounded-2xl shadow-lg animate-gradient hover:animate-glow-pulse">
                 <Home className="w-6 h-6 text-white" />
               </div>
               <div>
                 <h1 className={`text-xl font-bold bg-gradient-to-r ${
                   isDark 
-                    ? 'from-white to-gray-300' 
-                    : 'from-gray-800 to-gray-600'
+                    ? 'from-emerald-200 to-cyan-200' 
+                    : 'from-emerald-800 to-cyan-800'
                 } bg-clip-text text-transparent`}>
                   Room Expense Tracker
                 </h1>
-                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                <p className={`text-sm ${isDark ? 'text-emerald-300' : 'text-cyan-600'}`}>
                   Manage your shared expenses
                 </p>
               </div>
@@ -203,16 +205,16 @@ function App() {
             <div className="flex items-center space-x-4">
               <div className={`hidden sm:flex items-center space-x-2 px-4 py-2 rounded-2xl backdrop-blur-md border transition-all duration-300 ${
                 isDark 
-                  ? 'bg-green-500/20 border-green-400/30 text-green-300' 
-                  : 'bg-green-100/80 border-green-200/50 text-green-700'
+                  ? 'bg-emerald-500/20 border-emerald-400/30 text-emerald-300' 
+                  : 'bg-emerald-100/80 border-emerald-200/50 text-emerald-700'
               }`}>
                 <Users className="w-4 h-4" />
                 <span className="text-sm font-medium">Shared Room</span>
               </div>
               <div className={`flex items-center space-x-2 px-4 py-2 rounded-2xl backdrop-blur-md border transition-all duration-300 ${
                 isDark 
-                  ? 'bg-purple-500/20 border-purple-400/30 text-purple-300' 
-                  : 'bg-purple-100/80 border-purple-200/50 text-purple-700'
+                  ? 'bg-cyan-500/20 border-cyan-400/30 text-cyan-300' 
+                  : 'bg-cyan-100/80 border-cyan-200/50 text-cyan-700'
               }`}>
                 <TrendingUp className="w-4 h-4 animate-pulse" />
                 <span className="text-sm font-medium">Live Sync</span>
@@ -223,7 +225,7 @@ function App() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 py-8">
+      <main className="max-w-4xl mx-auto px-4 py-8 animate-scale-in">
         {/* Tab Navigation */}
         <div className="mb-8">
           <GlassCard className="p-2">
@@ -236,14 +238,14 @@ function App() {
                   onClick={() => setActiveTab(tab.id as any)}
                   className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-2xl font-medium transition-all duration-300 whitespace-nowrap relative overflow-hidden group ${
                     activeTab === tab.id
-                      ? `bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/25 ${
-                          isDark ? 'shadow-purple-400/20' : 'shadow-purple-500/25'
+                      ? `bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/25 ${
+                          isDark ? 'shadow-emerald-400/20' : 'shadow-cyan-500/25'
                         }`
-                      : `${isDark ? 'text-gray-300 hover:text-white hover:bg-white/10' : 'text-gray-600 hover:text-gray-800 hover:bg-white/50'}`
+                      : `${isDark ? 'text-emerald-200 hover:text-white hover:bg-emerald-500/10' : 'text-cyan-700 hover:text-emerald-800 hover:bg-cyan-50/50'}`
                   }`}
                 >
                   {activeTab !== tab.id && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-cyan-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
                   )}
                   <Icon className="w-4 h-4" />
                   <span className="hidden sm:inline relative z-10">{tab.label}</span>
@@ -295,6 +297,11 @@ function App() {
             />
           )}
 
+          {/* Water Duty Tab */}
+          {activeTab === 'water-duty' && (
+            <WaterDutyTracker />
+          )}
+
           {/* Cleaning Tab */}
           {activeTab === 'cleaning' && (
             <CleaningSchedule />
@@ -324,14 +331,14 @@ function App() {
       {/* Footer */}
       <footer className={`backdrop-blur-xl border-t mt-16 transition-all duration-300 ${
         isDark 
-          ? 'bg-black/20 border-white/10' 
-          : 'bg-white/30 border-white/20'
+          ? 'bg-emerald-900/20 border-emerald-400/10' 
+          : 'bg-cyan-50/30 border-cyan-200/20'
       }`}>
         <div className="max-w-4xl mx-auto px-4 py-6 text-center">
-          <p className={`${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+          <p className={`${isDark ? 'text-emerald-300' : 'text-cyan-600'}`}>
             Built for B.Tech students • Complete room management • Real-time sync
           </p>
-          <p className={`text-sm mt-2 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+          <p className={`text-sm mt-2 ${isDark ? 'text-emerald-400' : 'text-cyan-500'}`}>
             💡 Tip: Use tabs to manage expenses, roommates, cleaning & monthly resets
           </p>
         </div>

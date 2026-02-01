@@ -19,7 +19,8 @@ const COLLECTIONS = {
   BUDGET: 'budget',
   EXPENSES: 'expenses',
   ROOMMATES: 'roommates',
-  CLEANING_TASKS: 'cleaningTasks'
+  CLEANING_TASKS: 'cleaningTasks',
+  WATER_DUTY: 'waterDuty'
 };
 
 // Budget operations
@@ -231,5 +232,99 @@ export const monthlyResetService = {
       })
     );
     await Promise.all(updatePromises);
+  }
+};
+
+// Water duty operations
+export const waterDutyService = {
+  // Get current water duty
+  async getCurrentWaterDuty() {
+    const snapshot = await getDocs(collection(db, COLLECTIONS.WATER_DUTY));
+    const duties = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    return duties.length > 0 ? duties[0] : null;
+  },
+
+  // Set initial water duty rotation
+  async initializeWaterDuty(roommates: any[]) {
+    if (roommates.length === 0) return;
+    
+    // Clear existing duties
+    const snapshot = await getDocs(collection(db, COLLECTIONS.WATER_DUTY));
+    const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+    await Promise.all(deletePromises);
+
+    // Create new duty cycle
+    await addDoc(collection(db, COLLECTIONS.WATER_DUTY), {
+      currentPersonIndex: 0,
+      roommates: roommates.map(r => ({ id: r.id, name: r.name })),
+      currentPerson: roommates[0].name,
+      startDate: new Date().toISOString(),
+      completedCount: 0,
+      lastCompletedBy: null,
+      lastCompletedAt: null,
+      createdAt: new Date().toISOString()
+    });
+  },
+
+  // Complete current duty and move to next person
+  async completeWaterDuty() {
+    const currentDuty = await this.getCurrentWaterDuty();
+    if (!currentDuty) return;
+
+    const nextIndex = (currentDuty.currentPersonIndex + 1) % currentDuty.roommates.length;
+    const nextPerson = currentDuty.roommates[nextIndex];
+
+    await updateDoc(doc(db, COLLECTIONS.WATER_DUTY, currentDuty.id), {
+      currentPersonIndex: nextIndex,
+      currentPerson: nextPerson.name,
+      completedCount: currentDuty.completedCount + 1,
+      lastCompletedBy: currentDuty.currentPerson,
+      lastCompletedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+  },
+
+  // Listen to water duty changes in real-time
+  onWaterDutyChange(callback: (duty: any) => void) {
+    return onSnapshot(collection(db, COLLECTIONS.WATER_DUTY), (snapshot) => {
+      const duties = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      callback(duties.length > 0 ? duties[0] : null);
+    });
+  },
+
+  // Update roommates in water duty when roommate list changes
+  async updateWaterDutyRoommates(roommates: any[]) {
+    const currentDuty = await this.getCurrentWaterDuty();
+    if (!currentDuty || roommates.length === 0) {
+      if (roommates.length > 0) {
+        await this.initializeWaterDuty(roommates);
+      }
+      return;
+    }
+
+    // Update roommates list while preserving current rotation
+    const updatedRoommates = roommates.map(r => ({ id: r.id, name: r.name }));
+    const currentPersonExists = updatedRoommates.find(r => r.name === currentDuty.currentPerson);
+    
+    let newCurrentIndex = 0;
+    let newCurrentPerson = updatedRoommates[0].name;
+    
+    if (currentPersonExists) {
+      newCurrentIndex = updatedRoommates.findIndex(r => r.name === currentDuty.currentPerson);
+      newCurrentPerson = currentDuty.currentPerson;
+    }
+
+    await updateDoc(doc(db, COLLECTIONS.WATER_DUTY, currentDuty.id), {
+      roommates: updatedRoommates,
+      currentPersonIndex: newCurrentIndex,
+      currentPerson: newCurrentPerson,
+      updatedAt: new Date().toISOString()
+    });
   }
 };
