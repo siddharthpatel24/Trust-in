@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Trash2, AlertTriangle } from 'lucide-react';
+import { Trash2, AlertTriangle, Lock } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import GlassCard from './GlassCard';
 import GradientButton from './GradientButton';
@@ -11,22 +11,47 @@ interface DeleteAllExpensesProps {
   expenseCount: number;
 }
 
+const VERIFICATION_CODE = '7989371182';
+
 const DeleteAllExpenses: React.FC<DeleteAllExpensesProps> = ({ onExpensesDeleted, expenseCount }) => {
   const { isDark } = useTheme();
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showVerificationStep, setShowVerificationStep] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [verificationCode, setVerificationCode] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+
+  const handleVerifyCode = async () => {
+    if (!verificationCode.trim()) {
+      toast.error('Please enter the verification code');
+      return;
+    }
+
+    if (verificationCode !== VERIFICATION_CODE) {
+      toast.error('Invalid verification code');
+      setVerificationCode('');
+      return;
+    }
+
+    await handleDeleteAll();
+  };
+
 
   const handleDeleteAll = async () => {
     setIsDeleting(true);
-    
+
     try {
       // Get all expenses and delete them
       const expenses = await expenseService.getExpenses();
       const deletePromises = expenses.map(expense => expenseService.deleteExpense(expense.id));
       await Promise.all(deletePromises);
-      
+
       toast.success('All expenses deleted successfully!');
       setShowConfirmation(false);
+      setShowOTPStep(false);
+      setPhoneNumber('');
+      setOtpCode('');
+      setVerificationId('');
       onExpensesDeleted();
     } catch (error) {
       toast.error('Failed to delete expenses');
@@ -61,8 +86,8 @@ const DeleteAllExpenses: React.FC<DeleteAllExpensesProps> = ({ onExpensesDeleted
           </div>
 
           <div className={`p-4 rounded-2xl backdrop-blur-md border ${
-            isDark 
-              ? 'bg-yellow-500/20 border-yellow-400/30 text-yellow-300' 
+            isDark
+              ? 'bg-yellow-500/20 border-yellow-400/30 text-yellow-300'
               : 'bg-yellow-50/80 border-yellow-200/50 text-yellow-700'
           }`}>
             <div className="flex items-start space-x-2">
@@ -83,11 +108,11 @@ const DeleteAllExpenses: React.FC<DeleteAllExpensesProps> = ({ onExpensesDeleted
             Delete All Expenses
           </GradientButton>
         </div>
-      ) : (
+      ) : !showVerificationStep ? (
         <div className="space-y-4">
           <div className={`p-4 rounded-2xl backdrop-blur-md border ${
-            isDark 
-              ? 'bg-red-500/20 border-red-400/30 text-red-300' 
+            isDark
+              ? 'bg-red-500/20 border-red-400/30 text-red-300'
               : 'bg-red-50/80 border-red-200/50 text-red-700'
           }`}>
             <div className="flex items-start space-x-2">
@@ -106,20 +131,75 @@ const DeleteAllExpenses: React.FC<DeleteAllExpensesProps> = ({ onExpensesDeleted
 
           <div className="flex space-x-3">
             <GradientButton
-              onClick={handleDeleteAll}
-              disabled={isDeleting}
+              onClick={() => setShowVerificationStep(true)}
               variant="danger"
               className="flex-1"
             >
-              {isDeleting ? 'Deleting...' : 'Yes, Delete All'}
+              Yes, Delete All
             </GradientButton>
             <GradientButton
               onClick={() => setShowConfirmation(false)}
-              disabled={isDeleting}
               variant="secondary"
               className="px-6"
             >
               Cancel
+            </GradientButton>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div className={`p-4 rounded-2xl backdrop-blur-md border ${
+            isDark
+              ? 'bg-blue-500/20 border-blue-400/30 text-blue-300'
+              : 'bg-blue-50/80 border-blue-200/50 text-blue-700'
+          }`}>
+            <div className="flex items-start space-x-2">
+              <Lock className="w-5 h-5 mt-0.5" />
+              <div>
+                <h4 className="font-semibold">Verification Code Required</h4>
+                <p className="text-sm mt-1">
+                  Enter the verification code to confirm this deletion.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              Verification Code
+            </label>
+            <input
+              type="password"
+              placeholder="Enter code"
+              value={verificationCode}
+              onChange={(e) => setVerificationCode(e.target.value)}
+              className={`w-full px-4 py-2 rounded-lg border text-center text-lg tracking-widest ${
+                isDark
+                  ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500'
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
+              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            />
+          </div>
+
+          <div className="flex space-x-3">
+            <GradientButton
+              onClick={handleVerifyCode}
+              disabled={isDeleting}
+              variant="danger"
+              className="flex-1"
+            >
+              {isDeleting ? 'Deleting...' : 'Verify & Delete'}
+            </GradientButton>
+            <GradientButton
+              onClick={() => {
+                setShowVerificationStep(false);
+                setVerificationCode('');
+              }}
+              disabled={isDeleting}
+              variant="secondary"
+              className="px-6"
+            >
+              Back
             </GradientButton>
           </div>
         </div>

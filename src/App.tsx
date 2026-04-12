@@ -14,7 +14,7 @@ import AddExpenseForm from './components/AddExpenseForm';
 import ExpenseList from './components/ExpenseList';
 import RoommateManager from './components/RoommateManager';
 import CleaningSchedule from './components/CleaningSchedule';
-import MonthlyReset from './components/MonthlyReset';
+// import MonthlyReset from './components/MonthlyReset';
 import ExpenseAnalytics from './components/ExpenseAnalytics';
 import QuickActions from './components/QuickActions';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -36,7 +36,7 @@ function App() {
   const [budget, setBudget] = useState<number | null>(null);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [roommates, setRoommates] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'expenses' | 'roommates' | 'cleaning' | 'analytics' | 'actions' | 'reset'>('expenses');
+  const [activeTab, setActiveTab] = useState<'expenses' | 'roommates' | 'cleaning' | 'analytics' | 'actions' >('expenses');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -116,21 +116,21 @@ function App() {
     { id: 'roommates', label: 'Roommates', icon: Users },
     { id: 'water-duty', label: 'Water Duty', icon: Droplets },
     { id: 'cleaning', label: 'Cleaning', icon: Calendar },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-    { id: 'actions', label: 'Actions', icon: Zap },
-    { id: 'reset', label: 'Monthly Reset', icon: RefreshCw }
+    // { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+    // { id: 'actions', label: 'Actions', icon: Zap },
+    // { id: 'reset', label: 'Monthly Reset', icon: RefreshCw }
   ];
 
   return (
     <div className={`min-h-screen transition-all duration-700 ${
       isDark 
-        ? 'bg-gradient-to-br from-slate-900 via-emerald-900 to-teal-900' 
+        ? 'bg-gradient-to-br from-red-1900 via-emerald-900 to-teal-900' 
         : 'bg-gradient-to-br from-emerald-50 via-cyan-50 to-blue-50'
     }`}>
       {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className={`absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-30 animate-float ${
-          isDark ? 'bg-emerald-500' : 'bg-cyan-400'
+          isDark ? 'bg-pink-900' : 'bg-cyan-400'
         }`} />
         <div className={`absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl opacity-25 animate-pulse-slow ${
           isDark ? 'bg-teal-500' : 'bg-blue-400'
@@ -169,7 +169,7 @@ function App() {
                 ? 'from-emerald-400 to-cyan-400' 
                 : 'from-cyan-600 to-blue-600'
             } bg-clip-text text-transparent`}>
-              🌟 Fresh Update 2024 - Refreshed & Renewed!
+              {/* 🌟 Fresh Update 2024 - Refreshed & Renewed! */}
             </span>
             <Sparkles className={`w-4 h-4 ${isDark ? 'text-cyan-400' : 'text-blue-600'} animate-wiggle`} />
           </div>
@@ -179,8 +179,8 @@ function App() {
       {/* Header */}
       <header className={`backdrop-blur-xl border-b sticky top-12 z-40 transition-all duration-300 ${
         isDark 
-          ? 'bg-emerald-900/40 border-emerald-400/20' 
-          : 'bg-cyan-50/50 border-cyan-200/30'
+          ? 'bg-red-900/40 border-red-400/20' 
+          : 'bg-red-50/50 border-red-200/30'
       }`}>
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -196,8 +196,8 @@ function App() {
                 } bg-clip-text text-transparent`}>
                   Room Expense Tracker
                 </h1>
-                <p className={`text-sm ${isDark ? 'text-emerald-300' : 'text-cyan-600'}`}>
-                  Manage your shared expenses
+                <p className={`text-sm ${isDark ? 'text-red-300' : 'text-cyan-600'}`}>
+                  {/* Manage your shared expenses */}
                 </p>
               </div>
             </div>
@@ -205,11 +205,11 @@ function App() {
             <div className="flex items-center space-x-4">
               <div className={`hidden sm:flex items-center space-x-2 px-4 py-2 rounded-2xl backdrop-blur-md border transition-all duration-300 ${
                 isDark 
-                  ? 'bg-emerald-500/20 border-emerald-400/30 text-emerald-300' 
+                  ? 'bg-emerald-500/20 border-red-400/30 text-emerald-300' 
                   : 'bg-emerald-100/80 border-emerald-200/50 text-emerald-700'
               }`}>
                 <Users className="w-4 h-4" />
-                <span className="text-sm font-medium">Shared Room</span>
+                {/* <span className="text-sm font-medium">Shared Room</span> */}
               </div>
               <div className={`flex items-center space-x-2 px-4 py-2 rounded-2xl backdrop-blur-md border transition-all duration-300 ${
                 isDark 
@@ -217,7 +217,7 @@ function App() {
                   : 'bg-cyan-100/80 border-cyan-200/50 text-cyan-700'
               }`}>
                 <TrendingUp className="w-4 h-4 animate-pulse" />
-                <span className="text-sm font-medium">Live Sync</span>
+                {/* <span className="text-sm font-medium">Live Sync</span> */}
               </div>
             </div>
           </div>
@@ -322,9 +322,9 @@ function App() {
           )}
 
           {/* Monthly Reset Tab */}
-          {activeTab === 'reset' && (
+          {/* {activeTab === 'reset' && (
             <MonthlyReset onDataUpdate={handleDataUpdate} />
-          )}
+          )} */}
         </div>
       </main>
 
@@ -334,14 +334,14 @@ function App() {
           ? 'bg-emerald-900/20 border-emerald-400/10' 
           : 'bg-cyan-50/30 border-cyan-200/20'
       }`}>
-        <div className="max-w-4xl mx-auto px-4 py-6 text-center">
+        {/* <div className="max-w-4xl mx-auto px-4 py-6 text-center">
           <p className={`${isDark ? 'text-emerald-300' : 'text-cyan-600'}`}>
             Built for B.Tech students • Complete room management • Real-time sync
           </p>
           <p className={`text-sm mt-2 ${isDark ? 'text-emerald-400' : 'text-cyan-500'}`}>
             💡 Tip: Use tabs to manage expenses, roommates, cleaning & monthly resets
           </p>
-        </div>
+        </div> */}
       </footer>
     </div>
   );
