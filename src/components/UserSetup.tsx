@@ -13,11 +13,24 @@ interface UserSetupProps {
 const UserSetup: React.FC<UserSetupProps> = ({ onUserCreated }) => {
   const { isDark } = useTheme();
   const [name, setName] = useState('');
+  const [profilePic, setProfilePic] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = event.target?.result as string;
+      setProfilePic(result);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!name.trim()) {
       toast.error('Please enter your name');
       return;
@@ -28,10 +41,15 @@ const UserSetup: React.FC<UserSetupProps> = ({ onUserCreated }) => {
       return;
     }
 
+    if (!profilePic) {
+      toast.error('Please upload your profile picture');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const user = createUser(name);
+      const user = createUser(name, profilePic);
       toast.success(`Welcome, ${user.name}! 🎉`);
       onUserCreated(user);
     } catch (error) {
@@ -91,8 +109,8 @@ const UserSetup: React.FC<UserSetupProps> = ({ onUserCreated }) => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               className={`w-full px-4 py-4 rounded-2xl backdrop-blur-md border transition-all duration-300 focus:outline-none focus:ring-2 focus:scale-105 ${
-                isDark 
-                  ? 'bg-white/10 border-white/20 text-white placeholder-gray-400 focus:ring-purple-400 focus:border-purple-400/50' 
+                isDark
+                  ? 'bg-white/10 border-white/20 text-white placeholder-gray-400 focus:ring-purple-400 focus:border-purple-400/50'
                   : 'bg-white/80 border-gray-300/50 text-gray-800 placeholder-gray-500 focus:ring-purple-500 focus:border-purple-500/50'
               }`}
               placeholder="Enter your name (e.g., Ravi, Priya)"
@@ -102,9 +120,38 @@ const UserSetup: React.FC<UserSetupProps> = ({ onUserCreated }) => {
             />
           </div>
 
+          <div>
+            <label className={`block text-sm font-medium mb-3 text-left ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              Profile Picture
+            </label>
+            <div className={`relative w-24 h-24 mx-auto mb-4 rounded-2xl overflow-hidden border-2 ${
+              isDark ? 'border-white/20' : 'border-gray-300/50'
+            }`}>
+              {profilePic ? (
+                <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <div className={`w-full h-full flex items-center justify-center text-3xl ${
+                  isDark ? 'bg-white/10' : 'bg-gray-100'
+                }`}>
+                  📷
+                </div>
+              )}
+            </div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="w-full px-4 py-3 rounded-2xl backdrop-blur-md border cursor-pointer text-sm"
+              disabled={isLoading}
+            />
+            <p className={`text-xs mt-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+              Upload a clear photo for your profile sticker
+            </p>
+          </div>
+
           <GradientButton
             type="submit"
-            disabled={isLoading || !name.trim()}
+            disabled={isLoading || !name.trim() || !profilePic}
             variant="primary"
             size="lg"
             className="w-full"
@@ -114,12 +161,12 @@ const UserSetup: React.FC<UserSetupProps> = ({ onUserCreated }) => {
         </form>
 
         <div className={`mt-6 p-4 rounded-2xl backdrop-blur-md border ${
-          isDark 
-            ? 'bg-blue-500/20 border-blue-400/30 text-blue-300' 
+          isDark
+            ? 'bg-blue-500/20 border-blue-400/30 text-blue-300'
             : 'bg-blue-50/80 border-blue-200/50 text-blue-700'
         }`}>
           <p className="text-sm">
-            💡 <strong>Your name will be saved</strong> and automatically added to all expenses you create. You can change it later in settings.
+            💡 <strong>Your name and picture will be saved</strong> and automatically tagged on all expenses you create. No need to select again!
           </p>
         </div>
       </GlassCard>

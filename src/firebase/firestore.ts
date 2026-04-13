@@ -59,13 +59,14 @@ export const budgetService = {
 // Expense operations
 export const expenseService = {
   // Add new expense
-  async addExpense(title: string, amount: number, date: string, addedBy: string, userId: string) {
+  async addExpense(title: string, amount: number, date: string, addedBy: string, userId: string, profilePic?: string) {
     await addDoc(collection(db, COLLECTIONS.EXPENSES), {
       title,
       amount,
       date,
       addedBy,
       userId,
+      profilePic: profilePic || '',
       createdAt: new Date().toISOString()
     });
   },
