@@ -2,6 +2,7 @@
 export interface User {
   id: string;
   name: string;
+  profilePic?: string;
   createdAt: string;
 }
 
@@ -34,10 +35,11 @@ export const saveUser = (user: User): void => {
 };
 
 // Create new user
-export const createUser = (name: string): User => {
+export const createUser = (name: string, profilePic?: string): User => {
   const user: User = {
     id: generateUserId(),
     name: name.trim(),
+    profilePic: profilePic || '',
     createdAt: new Date().toISOString()
   };
   saveUser(user);
@@ -51,6 +53,20 @@ export const updateUserName = (newName: string): User | null => {
     const updatedUser = {
       ...currentUser,
       name: newName.trim()
+    };
+    saveUser(updatedUser);
+    return updatedUser;
+  }
+  return null;
+};
+
+// Update user profile picture
+export const updateUserProfilePic = (profilePic: string): User | null => {
+  const currentUser = getCurrentUser();
+  if (currentUser) {
+    const updatedUser = {
+      ...currentUser,
+      profilePic
     };
     saveUser(updatedUser);
     return updatedUser;
