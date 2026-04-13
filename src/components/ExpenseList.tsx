@@ -14,7 +14,6 @@ interface Expense {
   date: string;
   addedBy?: string;
   userId?: string;
-  profilePic?: string;
   createdAt: string;
 }
 
@@ -105,9 +104,9 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ expenses, onExpenseUpdated })
               {dayExpenses.map((expense) => (
                 <div
                   key={expense.id}
-                  className={`relative flex items-center justify-between p-4 rounded-2xl backdrop-blur-md border transition-all duration-300 hover:scale-[1.02] ${
-                    isDark
-                      ? 'bg-white/5 border-white/10 hover:bg-white/10'
+                  className={`flex items-center justify-between p-4 rounded-2xl backdrop-blur-md border transition-all duration-300 hover:scale-[1.02] ${
+                    isDark 
+                      ? 'bg-white/5 border-white/10 hover:bg-white/10' 
                       : 'bg-gray-50/80 border-gray-200/50 hover:bg-gray-100/80'
                   }`}
                 >
@@ -133,12 +132,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ expenses, onExpenseUpdated })
                     </div>
                   </div>
 
-                  <div className="text-right flex items-center space-x-3">
-                    {expense.profilePic && (
-                      <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-lg transform -rotate-12 hover:rotate-0 transition-transform duration-300">
-                        <img src={expense.profilePic} alt={expense.addedBy} className="w-full h-full object-cover" />
-                      </div>
-                    )}
+                  <div className="text-right">
                     <div className={`font-semibold ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
                       ₹<AnimatedCounter value={expense.amount} />
                     </div>
