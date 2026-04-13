@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Plus, Calendar, DollarSign, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -22,13 +23,13 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ onExpenseAdded }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     const currentUser = getCurrentUser();
     if (!currentUser) {
       toast.error('User not found. Please refresh the page.');
       return;
     }
-
+    
     if (!title.trim() || !amount || !date) {
       toast.error('Please fill in all fields');
       return;
@@ -43,9 +44,10 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ onExpenseAdded }) => {
     setIsLoading(true);
 
     try {
-      await expenseService.addExpense(title.trim(), expenseAmount, date, currentUser.name, currentUser.id, currentUser.profilePic);
+      await expenseService.addExpense(title.trim(), expenseAmount, date, currentUser.name, currentUser.id);
       toast.success('Expense added successfully!');
-
+      
+      // Reset form
       setTitle('');
       setAmount('');
       setDate(format(new Date(), 'yyyy-MM-dd'));
@@ -59,7 +61,7 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ onExpenseAdded }) => {
     }
   };
 
-  const quickExpenses = ['Groceries', 'Utilities', 'Internet', 'Cleaning', 'Food Delivery', 'Transportation'];
+  const quickExpenses = ['🥬🥬', '🥚🥚', '🐓🐔', '🛒🛒', '🍼🍼', '💦💦'];
 
   return (
     <GlassCard>
@@ -72,7 +74,7 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ onExpenseAdded }) => {
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="p-3 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-2xl shadow-lg animate-gradient hover:animate-glow-pulse">
+              <div className="p-3 bg-gradient-to-r from-green-500 via-emerald-500 to-blue-500 rounded-2xl shadow-lg animate-gradient">
                 <Plus className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -87,7 +89,7 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ onExpenseAdded }) => {
               </div>
             </div>
             <div className={`p-2 rounded-xl transition-all duration-300 ${
-              isDark ? 'text-emerald-300 hover:text-cyan-400' : 'text-cyan-500 hover:text-emerald-600'
+              isDark ? 'text-gray-400 hover:text-green-400' : 'text-gray-400 hover:text-green-600'
             }`}>
               <Plus className="w-5 h-5 transition-transform duration-300 hover:rotate-90" />
             </div>
@@ -97,7 +99,7 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ onExpenseAdded }) => {
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-3">
-              <div className="p-3 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-2xl shadow-lg animate-gradient hover:animate-glow-pulse">
+              <div className="p-3 bg-gradient-to-r from-green-500 via-emerald-500 to-blue-500 rounded-2xl shadow-lg animate-gradient">
                 <Plus className="w-6 h-6 text-white" />
               </div>
               <h3 className={`text-lg font-semibold bg-gradient-to-r ${
@@ -109,7 +111,7 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ onExpenseAdded }) => {
             <button
               onClick={() => setIsOpen(false)}
               className={`p-2 rounded-xl transition-all duration-300 hover:scale-110 ${
-                isDark ? 'text-emerald-300 hover:text-red-400 hover:bg-red-500/20' : 'text-cyan-500 hover:text-red-600 hover:bg-red-50'
+                isDark ? 'text-gray-400 hover:text-red-400 hover:bg-red-500/20' : 'text-gray-400 hover:text-red-600 hover:bg-red-50'
               }`}
             >
               ×
@@ -130,10 +132,10 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ onExpenseAdded }) => {
                     onClick={() => setTitle(expense)}
                     className={`px-4 py-2 text-sm rounded-2xl border transition-all duration-300 hover:scale-105 ${
                       title === expense
-                        ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white border-transparent shadow-lg animate-glow-pulse'
-                        : `${isDark
-                            ? 'bg-emerald-500/10 text-emerald-200 border-emerald-400/20 hover:bg-emerald-500/20 hover:border-emerald-400/40'
-                            : 'bg-cyan-50/80 text-cyan-700 border-cyan-200/50 hover:bg-emerald-50/80 hover:border-emerald-300/50'
+                        ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white border-transparent shadow-lg'
+                        : `${isDark 
+                            ? 'bg-white/10 text-gray-300 border-white/20 hover:bg-blue-500/20 hover:border-blue-400/30' 
+                            : 'bg-gray-50/80 text-gray-700 border-gray-200/50 hover:bg-blue-50/80 hover:border-blue-300/50'
                           }`
                     }`}
                   >
