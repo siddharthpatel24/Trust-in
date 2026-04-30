@@ -1,6 +1,4 @@
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { db } from '../firebase/config';
-
+// User management utilities for automatic user tracking
 export interface User {
   id: string;
   name: string;
@@ -8,10 +6,12 @@ export interface User {
   createdAt: string;
 }
 
+// Generate a unique user ID
 export const generateUserId = (): string => {
   return 'user_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
 };
 
+// Get current user from localStorage
 export const getCurrentUser = (): User | null => {
   try {
     const userData = localStorage.getItem('roommate_user');
@@ -25,6 +25,7 @@ export const getCurrentUser = (): User | null => {
   }
 };
 
+// Save user to localStorage
 export const saveUser = (user: User): void => {
   try {
     localStorage.setItem('roommate_user', JSON.stringify(user));
@@ -33,32 +34,7 @@ export const saveUser = (user: User): void => {
   }
 };
 
-export const saveUserToFirestore = async (user: User): Promise<void> => {
-  try {
-    await setDoc(doc(db, 'users', user.id), {
-      id: user.id,
-      name: user.name,
-      profilePic: user.profilePic || '',
-      createdAt: user.createdAt,
-      updatedAt: new Date().toISOString()
-    }, { merge: true });
-  } catch (error) {
-    console.error('Error saving user to Firestore:', error);
-  }
-};
-
-export const getUserFromFirestore = async (userId: string): Promise<User | null> => {
-  try {
-    const userDoc = await getDoc(doc(db, 'users', userId));
-    if (userDoc.exists()) {
-      return userDoc.data() as User;
-    }
-    return null;
-  } catch {
-    return null;
-  }
-};
-
+// Create new user
 export const createUser = (name: string, profilePic?: string): User => {
   const user: User = {
     id: generateUserId(),
@@ -70,6 +46,7 @@ export const createUser = (name: string, profilePic?: string): User => {
   return user;
 };
 
+// Update user name
 export const updateUserName = (newName: string): User | null => {
   const currentUser = getCurrentUser();
   if (currentUser) {
@@ -83,6 +60,7 @@ export const updateUserName = (newName: string): User | null => {
   return null;
 };
 
+// Update user profile picture
 export const updateUserProfilePic = (profilePic: string): User | null => {
   const currentUser = getCurrentUser();
   if (currentUser) {

@@ -3,8 +3,7 @@ import { User, CreditCard as Edit3, Check, X, Camera } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import GlassCard from './GlassCard';
 import GradientButton from './GradientButton';
-import { getCurrentUser, updateUserName, updateUserProfilePic, saveUserToFirestore } from '../utils/userManager';
-import { uploadProfilePicture, dataUrlToFile } from '../firebase/storageService';
+import { getCurrentUser, updateUserName, updateUserProfilePic } from '../utils/userManager';
 import toast from 'react-hot-toast';
 
 interface UserProfileProps {
@@ -36,7 +35,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ onUserUpdated }) => {
     reader.readAsDataURL(file);
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!newName.trim()) {
       toast.error('Name cannot be empty');
       return;
@@ -47,28 +46,17 @@ const UserProfile: React.FC<UserProfileProps> = ({ onUserUpdated }) => {
       return;
     }
 
-    try {
-      let updatedUser = updateUserName(newName);
-      if (!updatedUser) {
-        toast.error('Failed to update profile');
-        return;
-      }
+    const updatedUser = updateUserName(newName);
+    if (updatedUser && newProfilePic) {
+      updateUserProfilePic(newProfilePic);
+    }
 
-      if (newProfilePic && newProfilePic !== currentUser?.profilePic) {
-        const file = dataUrlToFile(newProfilePic, `profile-${currentUser?.id}.jpg`);
-        const imageUrl = await uploadProfilePicture(currentUser?.id || '', file);
-        updatedUser = updateUserProfilePic(imageUrl);
-      }
-
-      if (updatedUser) {
-        await saveUserToFirestore(updatedUser);
-        toast.success('Profile updated successfully!');
-        setIsEditing(false);
-        onUserUpdated?.();
-      }
-    } catch (error) {
+    if (updatedUser) {
+      toast.success('Profile updated successfully!');
+      setIsEditing(false);
+      onUserUpdated?.();
+    } else {
       toast.error('Failed to update profile');
-      console.error('Profile update error:', error);
     }
   };
 

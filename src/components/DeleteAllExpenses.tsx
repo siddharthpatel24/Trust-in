@@ -48,8 +48,10 @@ const DeleteAllExpenses: React.FC<DeleteAllExpensesProps> = ({ onExpensesDeleted
 
       toast.success('All expenses deleted successfully!');
       setShowConfirmation(false);
-      setShowVerificationStep(false);
-      setVerificationCode('');
+      setShowOTPStep(false);
+      setPhoneNumber('');
+      setOtpCode('');
+      setVerificationId('');
       onExpensesDeleted();
     } catch (error) {
       toast.error('Failed to delete expenses');
