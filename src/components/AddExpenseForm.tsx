@@ -44,7 +44,7 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ onExpenseAdded }) => {
     setIsLoading(true);
 
     try {
-      await expenseService.addExpense(title.trim(), expenseAmount, date, currentUser.name, currentUser.id);
+      await expenseService.addExpense(title.trim(), expenseAmount, date, currentUser.name, currentUser.id, currentUser.profilePic);
       toast.success('Expense added successfully!');
       
       // Reset form

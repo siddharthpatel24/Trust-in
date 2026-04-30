@@ -3,7 +3,8 @@ import { User, Sparkles } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import GlassCard from './GlassCard';
 import GradientButton from './GradientButton';
-import { createUser } from '../utils/userManager';
+import { createUser, saveUserToFirestore } from '../utils/userManager';
+import { uploadProfilePicture, dataUrlToFile } from '../firebase/storageService';
 import toast from 'react-hot-toast';
 
 interface UserSetupProps {
@@ -50,6 +51,13 @@ const UserSetup: React.FC<UserSetupProps> = ({ onUserCreated }) => {
 
     try {
       const user = createUser(name, profilePic);
+
+      const file = dataUrlToFile(profilePic, `profile-${user.id}.jpg`);
+      const imageUrl = await uploadProfilePicture(user.id, file);
+
+      user.profilePic = imageUrl;
+      await saveUserToFirestore(user);
+
       toast.success(`Welcome, ${user.name}! 🎉`);
       onUserCreated(user);
     } catch (error) {
