@@ -59,14 +59,13 @@ export const budgetService = {
 // Expense operations
 export const expenseService = {
   // Add new expense
-  async addExpense(title: string, amount: number, date: string, addedBy: string, userId: string, profilePic?: string) {
+  async addExpense(title: string, amount: number, date: string, addedBy: string, userId: string) {
     await addDoc(collection(db, COLLECTIONS.EXPENSES), {
       title,
       amount,
       date,
       addedBy,
       userId,
-      profilePic: profilePic || '',
       createdAt: new Date().toISOString()
     });
   },
@@ -163,53 +162,33 @@ export const roommateService = {
   }
 };
 
-// Cleaning tasks operations
+// Cleaning log operations — simple manual log of who did what and when
 export const cleaningService = {
-  // Add new cleaning task
-  async addCleaningTask(title: string, assignedTo: string, frequency: 'daily' | 'weekly', dueDate: string) {
+  // Add a cleaning log entry
+  async addCleaningLog(roommateName: string, task: string, date: string, note?: string) {
     await addDoc(collection(db, COLLECTIONS.CLEANING_TASKS), {
-      title,
-      assignedTo,
-      frequency,
-      dueDate,
-      completed: false,
+      roommateName,
+      task,
+      date,
+      note: note || '',
       createdAt: new Date().toISOString()
     });
   },
 
-  // Get all cleaning tasks
-  async getCleaningTasks() {
-    const q = query(collection(db, COLLECTIONS.CLEANING_TASKS), orderBy('dueDate', 'asc'));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-  },
-
-  // Update task completion status
-  async updateTaskStatus(id: string, completed: boolean) {
-    await updateDoc(doc(db, COLLECTIONS.CLEANING_TASKS, id), {
-      completed,
-      completedAt: completed ? new Date().toISOString() : null,
-      updatedAt: new Date().toISOString()
-    });
-  },
-
-  // Delete cleaning task
-  async deleteCleaningTask(id: string) {
+  // Delete a cleaning log entry
+  async deleteCleaningLog(id: string) {
     await deleteDoc(doc(db, COLLECTIONS.CLEANING_TASKS, id));
   },
 
-  // Listen to cleaning tasks changes in real-time
-  onCleaningTasksChange(callback: (tasks: any[]) => void) {
-    const q = query(collection(db, COLLECTIONS.CLEANING_TASKS), orderBy('dueDate', 'asc'));
+  // Listen to cleaning log changes in real-time
+  onCleaningLogsChange(callback: (logs: any[]) => void) {
+    const q = query(collection(db, COLLECTIONS.CLEANING_TASKS), orderBy('date', 'desc'));
     return onSnapshot(q, (snapshot) => {
-      const tasks = snapshot.docs.map(doc => ({
+      const logs = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
-      callback(tasks);
+      callback(logs);
     });
   }
 };
