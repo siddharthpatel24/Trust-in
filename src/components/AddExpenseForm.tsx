@@ -291,7 +291,7 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ onExpenseAdded }) => {
     }
   };
 
-  const quickExpenses = ['Groceries', 'Utilities', 'Internet', 'Cleaning', 'Food Delivery', 'Transportation'];
+  const quickExpenses = ['🥬🥬', '🥚🥚', '🐓🐔', '🛒🛒', '🍼🍼', '💦💦'];
 
   return (
     <GlassCard>
