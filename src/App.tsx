@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { Home, Users, TrendingUp, Calendar, RefreshCw, BarChart3, Zap, Sparkles, Droplets } from 'lucide-react';
+import { Home, Users, TrendingUp, Calendar,Sparkles, Droplets } from 'lucide-react';
 import { useTheme } from './contexts/ThemeContext';
 import { getCurrentUser } from './utils/userManager';
 import GlassCard from './components/GlassCard';
@@ -15,7 +15,7 @@ import ExpenseList from './components/ExpenseList';
 import RoommateManager from './components/RoommateManager';
 import CleaningSchedule from './components/CleaningSchedule';
 import LoadingSpinner from './components/LoadingSpinner';
-import WaterDutyTracker from './components/WaterDutyTracker';
+// import WaterDutyTracker from './components/WaterDutyTracker';
 import { budgetService, expenseService, roommateService } from './firebase/firestore';
 import toast from 'react-hot-toast';
 
@@ -33,7 +33,7 @@ function App() {
   const [budget, setBudget] = useState<number | null>(null);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [roommates, setRoommates] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'expenses' | 'roommates' | 'cleaning' | 'analytics' | 'actions' | 'reset'>('expenses');
+  const [activeTab, setActiveTab] = useState<'expenses' | 'roommates' | 'cleaning' >('expenses');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -111,11 +111,9 @@ function App() {
   const tabs = [
     { id: 'expenses', label: 'Expenses', icon: Home },
     { id: 'roommates', label: 'Roommates', icon: Users },
-    { id: 'water-duty', label: 'Water Duty', icon: Droplets },
+    // { id: 'water-duty', label: 'Water Duty', icon: Droplets },
     { id: 'cleaning', label: 'Cleaning', icon: Calendar },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-    { id: 'actions', label: 'Actions', icon: Zap },
-    { id: 'reset', label: 'Monthly Reset', icon: RefreshCw }
+   
   ];
 
   return (
@@ -127,7 +125,7 @@ function App() {
       {/* Animated Aurora Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className={`absolute top-0 left-0 w-[40rem] h-[40rem] rounded-full blur-3xl opacity-30 animate-aurora ${
-          isDark ? 'bg-rose-600' : 'bg-rose-300'
+          isDark ? 'bg-rose-600' : 'bg-teal-900'
         }`} />
         <div className={`absolute bottom-0 right-0 w-[35rem] h-[35rem] rounded-full blur-3xl opacity-25 animate-pulse-slow ${
           isDark ? 'bg-amber-600' : 'bg-amber-300'
@@ -161,7 +159,7 @@ function App() {
           ? 'bg-emerald-900/30 border-emerald-400/20' 
           : 'bg-cyan-50/40 border-cyan-200/30'
       }`}>
-        <div className="max-w-4xl mx-auto px-4 py-2">
+        {/* <div className="max-w-4xl mx-auto px-4 py-2">
           <div className="flex items-center justify-center space-x-2 text-sm font-medium animate-slide-up">
             <Sparkles className={`w-4 h-4 ${isDark ? 'text-emerald-400' : 'text-cyan-600'} animate-wiggle`} />
             <span className={`bg-gradient-to-r ${
@@ -169,11 +167,11 @@ function App() {
                 ? 'from-emerald-400 to-cyan-400' 
                 : 'from-cyan-600 to-blue-600'
             } bg-clip-text text-transparent`}>
-              🌟 Fresh Update 2024 - Refreshed & Renewed!
+                  SIDDHARTH PATEL
             </span>
             <Sparkles className={`w-4 h-4 ${isDark ? 'text-cyan-400' : 'text-blue-600'} animate-wiggle`} />
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Header */}
@@ -194,11 +192,11 @@ function App() {
                     ? 'from-rose-300 via-amber-300 to-teal-300' 
                     : 'from-rose-700 via-orange-700 to-teal-700'
                 } bg-clip-text text-transparent`}>
-                  Room Expense Tracker
+                  BUDGET APP
                 </h1>
-                <p className={`text-sm ${isDark ? 'text-rose-300' : 'text-rose-600'}`}>
-                  Manage your shared expenses
-                </p>
+                  {/* <p className={`text-sm ${isDark ? 'text-rose-300' : 'text-rose-600'}`}>
+                    Manage your shared expenses
+                  </p> */}
               </div>
             </div>
             
@@ -297,34 +295,17 @@ function App() {
             />
           )}
 
-          {/* Water Duty Tab */}
+          {/* Water Duty Tab
           {activeTab === 'water-duty' && (
             <WaterDutyTracker />
-          )}
+          )} */}
 
           {/* Cleaning Tab */}
           {activeTab === 'cleaning' && (
             <CleaningSchedule />
           )}
 
-          {/* Analytics Tab */}
-          {activeTab === 'analytics' && (
-            <ExpenseAnalytics />
-          )}
-
-          {/* Quick Actions Tab */}
-          {activeTab === 'actions' && (
-            <QuickActions
-              totalExpenses={totalExpenses}
-              roommateCount={roommates.length}
-              onCalculateSplit={handleCalculateSplit}
-            />
-          )}
-
-          {/* Monthly Reset Tab */}
-          {activeTab === 'reset' && (
-            <MonthlyReset onDataUpdate={handleDataUpdate} />
-          )}
+      
         </div>
       </main>
 
@@ -334,14 +315,7 @@ function App() {
           ? 'bg-rose-950/30 border-rose-500/10' 
           : 'bg-amber-50/40 border-amber-200/20'
       }`}>
-        <div className="max-w-4xl mx-auto px-4 py-6 text-center">
-          <p className={`${isDark ? 'text-rose-300' : 'text-rose-600'}`}>
-            Built for B.Tech students • Complete room management • Real-time sync
-          </p>
-          <p className={`text-sm mt-2 ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
-            Tip: Use tabs to manage expenses, roommates, cleaning & monthly resets
-          </p>
-        </div>
+       
       </footer>
     </div>
   );
