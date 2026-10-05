@@ -233,4 +233,4 @@ This project is open source and available under the MIT License.
 
 **Happy expense tracking! 🎉**
 
-*Remember: The best way to learn is by building and experimenting. Don't hesitate to modify the code and make it your own!*
+*Remember: The best way to learn is by building and experimenting. Don't hesitate to modify the code and make it your own!*"# trustin_copy" 
