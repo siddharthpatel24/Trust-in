@@ -165,9 +165,7 @@ const UserSetup: React.FC<UserSetupProps> = ({ onUserCreated }) => {
             ? 'bg-blue-500/20 border-blue-400/30 text-blue-300'
             : 'bg-blue-50/80 border-blue-200/50 text-blue-700'
         }`}>
-          <p className="text-sm">
-            💡 <strong>Your name and picture will be saved</strong> and automatically tagged on all expenses you create. No need to select again!
-          </p>
+         
         </div>
       </GlassCard>
     </div>
